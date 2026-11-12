@@ -105,7 +105,7 @@ Plugins must be registered via Pull Request to the Core Repository.
 - TypeScript
 - NestJS
 - Nx
-- pnpm
+- npm workspaces
 - Zod
 - OpenTelemetry
 - Docker
