@@ -9,7 +9,7 @@
 
 ## 2. Technology Stack & Standards
 - **Language:** TypeScript (Strict Mode enabled; never use `any`—use `unknown` with type guards or Zod schemas).
-- **Runtime & Framework:** Node 22 LTS, NestJS.
+- **Runtime & Framework:** Node 22 LTS or Node 26 LTS, NestJS. Nx 23.x supports both Node versions.
 - **Monorepo Tooling:** Nx with npm workspaces.
 - **Validation:** Zod (mandatory for all runtime schemas, configurations, and API contracts).
 - **Observability:** OpenTelemetry (distributed tracing across runtime, plugins, capabilities, and adapters).
