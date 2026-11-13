@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@api-platform/plugin-api": ["libs/plugin-api/src/index.ts"],
+      "@api-platform/customer-capability": ["capabilities/customer-capability/src/index.ts"],
+      "@api-platform/billing-capability": ["capabilities/billing-capability/src/index.ts"],
+      "@api-platform/payment-capability": ["capabilities/payment-capability/src/index.ts"],
+      "@api-platform/notification-capability": ["capabilities/notification-capability/src/index.ts"],
+      "@api-platform/crm-adapter": ["backend-adapters/crm-adapter/src/index.ts"],
+      "@api-platform/billing-adapter": ["backend-adapters/billing-adapter/src/index.ts"],
+      "@api-platform/payment-adapter": ["backend-adapters/payment-adapter/src/index.ts"],
+      "@api-platform/notification-adapter": ["backend-adapters/notification-adapter/src/index.ts"],
+      "@api-platform/auth": ["platform/auth/src/index.ts"],
+      "@api-platform/authorization": ["platform/authorization/src/index.ts"],
+      "@api-platform/validation": ["platform/validation/src/index.ts"],
+      "@api-platform/telemetry": ["platform/telemetry/src/index.ts"],
+      "@api-platform/plugin-loader": ["platform/plugin-loader/src/index.ts"],
+      "@api-platform/plugin-registry": ["platform/plugin-registry/src/index.ts"],
+      "@api-platform/shared-models": ["shared-models/src/index.ts"]
+    }
+  }
+}
