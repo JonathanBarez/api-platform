@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "paths": {
+      "@api-platform/billing-adapter": ["backend-adapters/billing-adapter/dist/index.d.ts"],
+      "@api-platform/plugin-api": ["libs/plugin-api/dist/index.d.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}
