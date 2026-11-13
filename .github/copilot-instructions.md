@@ -17,7 +17,7 @@
 
 ---
 
-## 3. Architectural Boundaries (Strict Enforcement)
+## 3. Architectural Boundaries & Dependency Management
 
 ### Repository Structure
 Respect the exact Nx monorepo layout:
@@ -31,6 +31,10 @@ Respect the exact Nx monorepo layout:
 - `plugin-catalog/plugins.yaml` — Declarative registry of enabled plugins and versions.
 - `deployment/helm/platform-runtime/` — Kubernetes Helm charts.
 - `environments/` — Isolated environment configs (`dev`, `qa`, `staging`, `preprod`, `prod`).
+
+### Peer Dependencies & Package Isolation
+- **Plugin Peer Dependencies:** Plugins (`plugins/` and external plugin repositories) must **never** bundle core platform packages (`libs/plugin-api`, `shared-models`, `@nestjs/*`, `zod`, `@opentelemetry/*`) into their build artifacts. Always declare them as `peerDependencies` in plugin `package.json` files so the host runtime provides a single shared instance.
+- **SDK Compatibility Validation:** When generating `plugin-loader` or `PluginManifest` schemas, include explicit SDK semver compatibility metadata so the runtime validates and rejects incompatible plugins during boot.
 
 ### Ownership & Isolation Rules
 - **Plugins (`plugins/` & external plugin repos):**
