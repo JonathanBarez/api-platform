@@ -45,18 +45,31 @@ export interface PluginContext<
 
 export type MaybePromise<T> = T | Promise<T>;
 
+export interface PluginRequestMetadata<
+  TParams = unknown,
+  TQuery = unknown,
+> {
+  readonly params: TParams;
+  readonly query: TQuery;
+}
+
 export interface PluginRoute<
   TRequestSchema extends z.ZodType<unknown> = z.ZodType<unknown>,
   TResponseSchema extends z.ZodType<unknown> = z.ZodType<unknown>,
   TCapabilities extends CapabilitySet = CapabilitySet,
+  TParamsSchema extends z.ZodType<unknown> = z.ZodType<unknown>,
+  TQuerySchema extends z.ZodType<unknown> = z.ZodType<unknown>,
 > {
   readonly path: string;
   readonly method: PluginHttpMethod;
   readonly requestSchema: TRequestSchema;
+  readonly paramsSchema?: TParamsSchema;
+  readonly querySchema?: TQuerySchema;
   readonly responseSchema: TResponseSchema;
   readonly handler: (
     request: z.output<TRequestSchema>,
     context: PluginContext<TCapabilities>,
+    metadata: PluginRequestMetadata<z.output<TParamsSchema>, z.output<TQuerySchema>>,
   ) => MaybePromise<z.output<TResponseSchema>>;
 }
 

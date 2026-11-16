@@ -64,7 +64,18 @@ test("plugin routes verify RS256 discovery, signature, issuer, audience and life
   await fs.writeFile(path.join(pluginDir, "package.json"), JSON.stringify({ name, version: "1.0.0", main: "index.cjs" }));
   await fs.writeFile(path.join(pluginDir, "index.cjs"), `
     const { z } = require("zod");
-    module.exports = { routes: [{ method: "POST", path: "/secure", requestSchema: z.object({}), responseSchema: z.object({ ok: z.boolean() }), handler: () => ({ ok: true }) }] };
+    module.exports = { routes: [
+      { method: "POST", path: "/secure", requestSchema: z.object({}), responseSchema: z.object({ ok: z.boolean() }), handler: () => ({ ok: true }) },
+      {
+        method: "POST", path: "/orders/:id",
+        requestSchema: z.object({ amount: z.coerce.number().min(1) }),
+        paramsSchema: z.object({ id: z.coerce.number().int().positive() }),
+        querySchema: z.object({ page: z.coerce.number().int().positive() }),
+        responseSchema: z.object({ total: z.number() }),
+        handler: (body, _context, metadata) => ({ total: body.amount + metadata.params.id + metadata.query.page })
+      },
+      { method: "POST", path: "/invalid-response", requestSchema: z.object({}), responseSchema: z.object({ secret: z.number() }), handler: () => ({ secret: "sensitive-output" }) }
+    ] };
   `);
   const catalog = path.join(temp, "plugins.yaml");
   await fs.writeFile(catalog, JSON.stringify({ plugins: [{ name, package: name, version: "1.0.0", enabled: true, supportedSdkRange: "*" }] }));
@@ -97,5 +108,27 @@ test("plugin routes verify RS256 discovery, signature, issuer, audience and life
   const otherKey = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey;
   assert.equal((await request(token(good, otherKey))).status, 401);
   assert.equal((await request(token(good, privateKey, "RS512"))).status, 401);
+  const post = (url, body) => fetch(`${base}${url}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${token(good)}` },
+    body: JSON.stringify(body),
+  });
+  const valid = await post("/orders/2?page=3", { amount: "4" });
+  assert.equal(valid.status, 200);
+  assert.deepEqual(await valid.json(), { total: 9 });
+  for (const [url, body] of [
+    ["/orders/2?page=3", { amount: 0 }],
+    ["/orders/not-a-number?page=3", { amount: 4 }],
+    ["/orders/2?page=invalid", { amount: 4 }],
+  ]) {
+    const invalid = await post(url, body);
+    assert.equal(invalid.status, 400);
+    assert.equal((await invalid.json()).message, "Invalid request");
+  }
+  const invalidResponse = await post("/invalid-response", {});
+  assert.equal(invalidResponse.status, 500);
+  const errorBody = JSON.stringify(await invalidResponse.json());
+  assert.ok(!errorBody.includes("sensitive-output"));
+  assert.ok(!errorBody.includes("secret"));
   assert.equal((await fetch(`${base}/health/ready`)).status, 200);
 });

@@ -11,7 +11,9 @@
     "paths": {
       "@api-platform/plugin-api": ["libs/plugin-api/dist/index.d.ts"],
       "@api-platform/plugin-loader": ["platform/plugin-loader/dist/index.d.ts"],
-      "@api-platform/plugin-registry": ["platform/plugin-registry/dist/index.d.ts"]
+      "@api-platform/plugin-registry": ["platform/plugin-registry/dist/index.d.ts"],
+      "@api-platform/validation": ["platform/validation/dist/index.d.ts"],
+      "@api-platform/telemetry": ["platform/telemetry/dist/index.d.ts"]
     }
   },
   "include": ["src/**/*.ts"]

@@ -19,4 +19,5 @@ export type {
   PluginManifest,
   PluginContext,
   PluginRoute,
+  PluginRequestMetadata,
 } from "./types";

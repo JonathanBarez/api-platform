@@ -69,6 +69,8 @@ export const pluginRouteSchema = z
     path: z.string().min(1),
     method: pluginHttpMethodSchema,
     requestSchema: zodSchemaSchema,
+    paramsSchema: zodSchemaSchema.optional(),
+    querySchema: zodSchemaSchema.optional(),
     responseSchema: zodSchemaSchema,
     handler: pluginHandlerSchema,
   })

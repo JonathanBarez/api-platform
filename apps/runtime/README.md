@@ -1,15 +1,21 @@
 # Runtime bootstrap
 
-Build `@api-platform/plugin-api`, `@api-platform/plugin-loader`, and
-`@api-platform/plugin-registry` before building this package. Start from the
-repository root with `npm start --workspace @api-platform/runtime`.
+Build `@api-platform/plugin-api`, `@api-platform/plugin-loader`,
+`@api-platform/plugin-registry`, `@api-platform/validation`, and
+`@api-platform/telemetry` before
+building this package. Start from the repository root with
+`npm start --workspace @api-platform/runtime`.
 `PORT`, `HOST`, and `PLUGIN_CATALOG_PATH` configure the listener and catalog.
 
 Plugins export a default `PluginDefinition`; the catalog must specify the
 installed package's exact version and supported SDK range. Invalid catalog
 structure stops startup; invalid or broken plugins are logged and skipped.
-Only literal routes are supported and `/health` is reserved. Request bodies
-and responses are validated with the route's Zod schemas.
+Literal route segments and named `:param` segments are supported; `/health`
+is reserved. `requestSchema` validates the request body and `responseSchema`
+validates the response. Routes may also declare `paramsSchema` and
+`querySchema`. Their parsed values are available in the handler's third
+argument, `{ params, query }`; an undeclared section is `undefined`.
+Validation failures return sanitized 400 or 500 responses.
 
 The default runtime has no capabilities or legacy SDK policies. A host may
 call `startRuntime` with an explicit legacy SDK version and expiry and a
@@ -62,3 +68,11 @@ replaced before scope- or role-based access control is required.
 
 Health endpoints `/health/live`, `/health/ready`, and `/health/startup` are
 public and become available only after bootstrap completes.
+
+## Tracing
+
+The entry point initializes OpenTelemetry before loading the engine and flushes
+pending spans on application shutdown. Configure OTLP export and sampling with
+standard `OTEL_*` variables; see [telemetry](../../../platform/telemetry/README.md).
+The selected SDK requires Node 22.15+ or Node 26. Injected capability facades are
+instrumented automatically and inherit the plugin's name and version.

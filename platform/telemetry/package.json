@@ -1,0 +1,27 @@
+{
+  "name": "@api-platform/telemetry",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": { "node": "^22.15.0 || ^26.0.0" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.cjs"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.10.0",
+    "@opentelemetry/core": "3.1.1",
+    "@opentelemetry/sdk-node": "0.301.2",
+    "@opentelemetry/sdk-trace": "3.1.1",
+    "@opentelemetry/instrumentation-http": "0.301.2",
+    "@opentelemetry/instrumentation-undici": "0.35.1",
+    "@opentelemetry/exporter-trace-otlp-http": "0.301.2",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@api-platform/billing-adapter": "0.1.0",
+    "@api-platform/billing-capability": "0.1.0"
+  }
+}

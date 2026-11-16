@@ -12,6 +12,8 @@
     "@api-platform/plugin-api": "0.1.0",
     "@api-platform/plugin-loader": "0.1.0",
     "@api-platform/plugin-registry": "0.1.0",
+    "@api-platform/validation": "0.1.0",
+    "@api-platform/telemetry": "0.1.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",

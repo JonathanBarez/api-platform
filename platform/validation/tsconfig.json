@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "paths": { "@api-platform/plugin-api": ["libs/plugin-api/dist/index.d.ts"] }
+  },
+  "include": ["src/**/*.ts"]
+}
