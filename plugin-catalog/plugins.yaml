@@ -1,1 +1,6 @@
-plugins: []
+plugins:
+  - name: billing-reference-plugin
+    package: "@api-platform/billing-reference-plugin"
+    version: "0.1.0"
+    enabled: false
+    supportedSdkRange: "^0.1.0"
