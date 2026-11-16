@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+**/node_modules
+**/dist
+.nx
+environments
+**/appsettings*.json
+**/.env*
+**/*.tgz

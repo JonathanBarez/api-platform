@@ -1,0 +1,8 @@
+environment: dev
+secret:
+  existingName: platform-runtime-dev
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 60
+config:
+  OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=dev

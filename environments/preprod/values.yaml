@@ -1,0 +1,8 @@
+environment: preprod
+secret:
+  existingName: platform-runtime-preprod
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 60
+config:
+  OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=preprod

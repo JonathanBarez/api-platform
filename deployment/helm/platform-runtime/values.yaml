@@ -1,0 +1,34 @@
+environment: dev
+replicaCount: 2
+image:
+  repository: ghcr.io/jonathanbarez/api-platform-runtime
+  digest: ""
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+service:
+  port: 80
+containerPort: 3000
+ingress:
+  enabled: false
+  className: nginx
+  host: ""
+  tlsSecretName: ""
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 60
+  targetCPUUtilizationPercentage: 70
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: "2"
+    memory: 1Gi
+config:
+  OTEL_SERVICE_NAME: api-platform-runtime
+pluginCatalog: ""
+secret:
+  create: false
+  existingName: ""
+  stringData: {}

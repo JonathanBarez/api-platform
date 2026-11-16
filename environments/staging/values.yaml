@@ -1,0 +1,8 @@
+environment: staging
+secret:
+  existingName: platform-runtime-staging
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 60
+config:
+  OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=staging

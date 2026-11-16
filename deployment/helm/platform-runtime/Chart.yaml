@@ -1,0 +1,6 @@
+apiVersion: v2
+name: platform-runtime
+description: Stateless API Platform runtime with environment-isolated configuration
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

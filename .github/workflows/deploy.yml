@@ -1,0 +1,60 @@
+name: Deploy immutable runtime
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      image:
+        type: string
+        required: true
+      source_sha:
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Validate deployment inputs
+        env:
+          TARGET: ${{ inputs.environment }}
+          IMAGE: ${{ inputs.image }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$TARGET" in dev|qa|staging|preprod|prod) ;; *) exit 1 ;; esac
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$IMAGE" =~ ^ghcr\.io/${GITHUB_REPOSITORY_OWNER,,}/api-platform-runtime@sha256:[a-f0-9]{64}$ ]]
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_sha }}
+      - uses: azure/setup-helm@v4.3.0
+        with:
+          version: v3.17.3
+      - name: Deploy exact image digest
+        env:
+          TARGET: ${{ inputs.environment }}
+          IMAGE: ${{ inputs.image }}
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KUBE_CONFIG"
+          export KUBECONFIG="$RUNNER_TEMP/platform-kubeconfig"
+          trap 'rm -f "$KUBECONFIG"' EXIT
+          umask 077
+          printf '%s' "$KUBE_CONFIG" | base64 --decode > "$KUBECONFIG"
+          helm upgrade --install platform deployment/helm/platform-runtime \
+            --namespace "api-platform-$TARGET" --create-namespace \
+            --values "environments/$TARGET/values.yaml" \
+            --set-file "pluginCatalog=environments/$TARGET/plugins.yaml" \
+            --set-string "image.repository=${IMAGE%@*}" \
+            --set-string "image.digest=${IMAGE#*@}" \
+            --atomic --wait --timeout 10m --history-max 10

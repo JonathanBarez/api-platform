@@ -1,0 +1,8 @@
+environment: prod
+secret:
+  existingName: platform-runtime-prod
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 60
+config:
+  OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=prod

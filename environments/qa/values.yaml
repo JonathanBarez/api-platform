@@ -1,0 +1,8 @@
+environment: qa
+secret:
+  existingName: platform-runtime-qa
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 60
+config:
+  OTEL_RESOURCE_ATTRIBUTES: deployment.environment.name=qa
