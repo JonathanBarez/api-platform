@@ -1,0 +1,12 @@
+{
+  "name": "@api-platform/plugin-registry",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": { "build": "tsc -p tsconfig.json" },
+  "dependencies": {
+    "@api-platform/plugin-api": "0.1.0",
+    "@api-platform/plugin-loader": "0.1.0"
+  }
+}
