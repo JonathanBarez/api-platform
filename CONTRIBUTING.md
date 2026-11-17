@@ -59,6 +59,50 @@ Plugins own route schemas, request/response mapping and orchestration through
 Ask the platform team for a capability when the required operation does not
 exist. A plugin must not bypass the boundary to implement it.
 
+## Bootstrap a feature-team API repository
+
+Every feature-team API/plugin repository must include its own version-controlled
+`.github/copilot-instructions.md`. Start with the generic
+[API development instructions template](./templates/plugin-api/.github/copilot-instructions.md),
+not the core runtime's instructions: feature teams must consume the platform,
+not implement its internal modules.
+
+Copy the template into the new repository at exactly
+`.github/copilot-instructions.md`. For example, from a local core checkout
+(replace the destination with your repository):
+
+```powershell
+$pluginRepository = 'C:\DEV\my-api-plugin'
+New-Item -ItemType Directory -Force `
+  -Path (Join-Path $pluginRepository '.github') | Out-Null
+Copy-Item -LiteralPath 'templates\plugin-api\.github\copilot-instructions.md' `
+  -Destination (Join-Path $pluginRepository '.github\copilot-instructions.md')
+```
+
+The template's location here is for distribution; it is not the core
+repository's active instruction file. Once copied to the feature repository's
+`.github` directory, it supplies repository-wide Copilot guidance without
+requiring `applyTo` frontmatter.
+
+Before the first API implementation, the feature team must:
+
+1. Review the template against the
+   [core standards](./.github/copilot-instructions.md) and the supported
+   SDK/capability contracts. Record the reviewed core commit or release in the
+   feature repository's contribution guide so the baseline is traceable.
+2. Add repository-specific build, lint, test and release commands that actually
+   exist. Do not copy core Nx commands into a standalone repository without Nx.
+3. Keep the capability-only boundary, peer dependency isolation, Zod contracts,
+   stateless behavior, trace context and immutable-promotion rules intact.
+4. Commit the instruction file and review it with normal pull requests. Recheck
+   alignment whenever core standards or the consumed SDK/capability version
+   changes; copies are not synchronized automatically.
+
+Instructions assist development; they are not a security sandbox or an
+enforcement mechanism. Code review, tests and dependency-boundary checks remain
+required. See the plugin creation steps below for packaging and registration;
+external repositories use their own package layout and release configuration.
+
 ## Create a core-team plugin
 
 Use the [billing reference](./plugins/core-team-plugins/billing-reference-plugin/)
@@ -234,6 +278,8 @@ all plugin routes. RBAC is not implemented. Health endpoints are public.
 - [ ] Image packaging includes new plugins before catalog enablement.
 - [ ] A changeset covers publishable package changes.
 - [ ] Documentation is updated; credentials and generated output are excluded.
+- [ ] Feature-team repositories include aligned `.github/copilot-instructions.md`
+      and record the reviewed core baseline in their contribution guide.
 
 ## Release and infrastructure contributions
 
