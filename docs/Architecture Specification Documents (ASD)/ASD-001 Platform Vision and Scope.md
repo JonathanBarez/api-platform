@@ -21,20 +21,20 @@ The purpose of this document is to define the vision, scope, guiding principles,
 
 The platform shall provide a scalable, extensible, and governed environment for exposing business capabilities through APIs while reducing duplication, improving consistency, and enabling independent team ownership.
 
-Feature Teams shall focus on delivering API functionality while the Platform Team provides the shared runtime environment, capability governance model, operational standards, and reusable platform services.
+Feature Teams shall focus on API delivery while Platform Teams provide reusable capabilities, runtime governance, operational standards, and platform-wide consistency.
 
-This document establishes the architectural direction for all subsequent Architecture Specification Documents.
+This document establishes the architectural direction that governs all subsequent Architecture Specification Documents.
 
 ---
 
 # 2. Business Context
 
-Multiple teams require the ability to expose business capabilities through APIs.
+Multiple engineering teams require the ability to expose business capabilities through APIs.
 
 Historically, API implementations often duplicate:
 
 - Business Validation
-- Integration Logic
+- Enterprise Integrations
 - Error Handling
 - Security Integration
 - Deployment Patterns
@@ -43,13 +43,13 @@ Historically, API implementations often duplicate:
 This duplication increases:
 
 - Development Effort
-- Operational Complexity
 - Maintenance Cost
+- Operational Complexity
 - Delivery Risk
 
-The platform addresses these problems by introducing a capability-centric architecture that promotes reuse, consistency, and centralized governance.
+The platform addresses these challenges by introducing reusable capabilities, centralized governance, and a shared Runtime execution model.
 
-Reusable capabilities are made available through governed platform capabilities while Feature Teams retain ownership of API implementations.
+The platform promotes consistency while preserving independent team ownership of API functionality.
 
 ---
 
@@ -57,7 +57,8 @@ Reusable capabilities are made available through governed platform capabilities 
 
 The platform provides a standardized mechanism for:
 
-- Publishing reusable capability contracts and implementations
+- Publishing reusable capability contracts
+- Delivering reusable capability implementations
 - Developing Feature API Plugins
 - Hosting APIs through a shared Runtime
 - Governing capability evolution
@@ -68,7 +69,7 @@ The platform provides a standardized mechanism for:
 - Standardizing deployment practices
 - Enforcing architectural boundaries
 
-The platform establishes architectural boundaries that allow Feature Teams to work independently while maintaining platform-wide consistency.
+The platform establishes architectural boundaries that allow Feature Teams to operate independently while maintaining operational consistency across the organization.
 
 ---
 
@@ -80,11 +81,11 @@ The following concerns are outside the scope of the platform:
 - User experience design
 - Business process ownership
 - Enterprise data ownership
-- Underlying Enterprise System ownership
+- Enterprise system ownership
 - Consumer application implementation
-- Line-of-business decision making
+- Business decision ownership
 
-The platform governs API enablement, capability reuse, and runtime execution only.
+The platform governs API enablement, capability reuse, and Runtime execution only.
 
 ---
 
@@ -94,11 +95,11 @@ The platform shall implement a capability-centric API model.
 
 Business functionality shall be implemented once and reused through Runtime-hosted Capability Implementations.
 
-Capability SDK Packages shall provide the contracts and development artifacts required for Feature API Plugins to consume those capabilities.
+Capability SDK Packages shall provide the contracts and development artifacts required to consume those capabilities during development and build activities.
 
-Feature API Plugins shall focus on exposing APIs while reusable business functionality remains centralized inside platform-governed Capability Implementations.
+Feature API Plugins shall focus on exposing APIs while reusable business behavior remains centralized inside Runtime-governed Capability Implementations.
 
-The Runtime shall provide a common execution environment that hosts independently developed Feature API Plugins while enforcing platform governance, security, observability, and operational standards.
+The Runtime shall provide the execution and governance environment in which APIs operate, capabilities are hosted, and platform standards are enforced.
 
 This approach promotes:
 
@@ -114,13 +115,13 @@ This approach promotes:
 
 ## 6.1 Rapid API Delivery
 
-Enable Feature Teams to deliver APIs without repeatedly implementing common functionality.
+Enable Feature Teams to deliver APIs without repeatedly implementing common business functionality and enterprise integrations.
 
 ---
 
 ## 6.2 Reusable Business Capabilities
 
-Promote reuse through centrally governed capabilities.
+Promote reuse through centralized capability contracts and reusable capability implementations.
 
 Business functionality should be implemented once and reused across multiple APIs.
 
@@ -162,13 +163,13 @@ Enable Platform Teams to independently evolve Runtime and Capability Implementat
 
 ## 6.6 Cloud-Native Operation
 
-Support containerized execution, stateless runtimes, and horizontal scalability.
+Support stateless execution, horizontal scalability, and containerized deployment models.
 
 ---
 
 ## 6.7 Controlled Capability Evolution
 
-Support capability evolution through governed compatibility policies while avoiding uncontrolled dependency fragmentation.
+Support capability evolution through governed compatibility policies while preventing uncontrolled dependency fragmentation.
 
 ---
 
@@ -176,9 +177,9 @@ Support capability evolution through governed compatibility policies while avoid
 
 ## 7.1 Simplicity First
 
-Prefer simple and explicit solutions over highly abstract or overly complex implementations.
+Prefer simple and explicit solutions over highly abstract or unnecessarily complex implementations.
 
-Architectural complexity must deliver measurable platform value.
+Architectural complexity must provide measurable value.
 
 ---
 
@@ -190,9 +191,10 @@ Business functionality shall be reused whenever possible before creating new imp
 
 ## 7.3 Separation of Concerns
 
-Responsibilities shall be clearly separated between:
+Responsibilities shall remain clearly separated between:
 
 - Capability SDK Packages
+- Capability Contracts
 - Capability Implementations
 - Feature API Plugins
 - Runtime
@@ -206,8 +208,8 @@ The Runtime shall remain the authoritative owner of:
 - Capability Implementations
 - Capability Implementation Selection
 - Plugin Execution
-- Feature Activation
 - Runtime Governance
+- Feature Activation
 - Cross-Cutting Platform Services
 
 ---
@@ -222,7 +224,7 @@ Application state shall be externalized.
 
 ## 7.6 Explicit Contracts
 
-Component interaction shall occur through explicit contracts.
+System integration shall occur through explicit contracts.
 
 Contract evolution shall be governed through platform-defined compatibility policies.
 
@@ -230,7 +232,7 @@ Contract evolution shall be governed through platform-defined compatibility poli
 
 ## 7.7 Operational Resilience
 
-Failure of an individual component shall not impact:
+Failure of an individual component shall not negatively impact:
 
 - Runtime Availability
 - Other Plugins
@@ -262,7 +264,7 @@ Capability SDK Packages provide:
 - Developer Tooling
 - Packaging Metadata
 
-Capability SDK Packages are intended to be consumed during:
+Capability SDK Packages are intended for:
 
 - Development
 - Build
@@ -271,7 +273,21 @@ Capability SDK Packages are intended to be consumed during:
 
 ---
 
-## 8.2 Capability Implementations
+## 8.2 Capability Contracts
+
+Capability Contracts define the public interfaces through which business capabilities are consumed.
+
+Capability Contracts provide stable integration boundaries between:
+
+- Feature API Plugins
+- Capability Implementations
+- Runtime Governance
+
+Capability Contracts evolve through governed compatibility policies.
+
+---
+
+## 8.3 Capability Implementations
 
 Capability Implementations provide reusable runtime business functionality.
 
@@ -286,7 +302,7 @@ Capability Implementations are hosted and governed by the Runtime.
 
 ---
 
-## 8.3 Feature API Plugin Packages
+## 8.4 Feature API Plugin Packages
 
 Feature API Plugin Packages provide API-specific functionality.
 
@@ -294,11 +310,11 @@ Feature API Plugins consume Capability SDK Packages during development and build
 
 Feature API Plugins execute against Runtime-provided Capability Implementations during runtime execution.
 
-Feature API Plugins are responsible for API-specific concerns and do not own reusable business functionality.
+Feature API Plugins are responsible for API-specific behavior and do not own reusable business functionality.
 
 ---
 
-## 8.4 Runtime Image
+## 8.5 Runtime Image
 
 The Runtime Image provides the execution and governance environment for capabilities and APIs.
 
@@ -309,7 +325,7 @@ The Runtime supplies:
 - Platform Services
 - Execution Environment
 
-The Runtime acts as the authoritative execution environment for all active APIs.
+The Runtime acts as the authoritative execution environment for all hosted APIs.
 
 ---
 
@@ -323,6 +339,7 @@ Responsible for:
 - Capability SDK Packages
 - Capability Implementations
 - Platform Governance
+- Capability Compatibility Governance
 - Operational Standards
 
 ---
@@ -354,8 +371,8 @@ Responsible for:
 Responsible for:
 
 - Architectural Governance
-- Standards
 - Technology Direction
+- Standards
 - Platform Alignment
 
 ---
@@ -366,8 +383,8 @@ The platform shall be considered successful when:
 
 - Feature Teams can independently publish Feature API Plugins.
 - Capability functionality is reused across multiple APIs.
-- Runtime upgrades occur independently from plugin releases.
-- Capability contracts evolve through governed compatibility policies.
+- Runtime upgrades can occur independently from plugin releases.
+- Capability Contracts can evolve through governed compatibility policies.
 - Operational standards remain consistent across hosted APIs.
 - Platform complexity remains lower than independently maintained implementations.
 - Architectural governance remains enforceable at scale.
@@ -388,8 +405,6 @@ The architecture assumes:
 ---
 
 # 12. Risks
-
-Potential risks include:
 
 ## 12.1 Capability Contract Proliferation
 
@@ -425,7 +440,7 @@ Governance processes shall mitigate these risks.
 
 # 13. Related Documents
 
-## Architecture Overview
+## Solution Architecture
 
 - ASD-002 Solution Architecture Overview
 
@@ -446,6 +461,6 @@ Governance processes shall mitigate these risks.
 - ASD-009 Security Validation and Observability
 - ASD-010 Deployment and Release Architecture
 
-## Strategic Direction
+## Strategic Planning
 
 - ASD-011 Future Architecture Roadmap
