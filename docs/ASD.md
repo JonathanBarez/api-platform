@@ -10,9 +10,9 @@ Status: Proposed
 
 # 1. Purpose
 
-Provide a lightweight, extensible, cloud-native API platform that enables teams to independently develop APIs while maintaining centralized governance, security, observability, runtime hosting, and operational controls.
+Provide a lightweight, extensible, cloud-native API platform that enables teams to independently develop and expose APIs while maintaining centralized governance, security, observability, runtime hosting, and operational controls.
 
-The platform shall support dynamic API exposure through Azure App Configuration Feature Flags without requiring redeployment or runtime restart.
+API exposure shall be dynamically controlled through Azure App Configuration Feature Flags without requiring redeployment or runtime restart.
 
 ---
 
@@ -26,6 +26,7 @@ The platform shall support dynamic API exposure through Azure App Configuration 
 - Enable independent release cycles
 - Support cloud-native deployment
 - Support dynamic feature enablement
+- Maintain operational consistency
 - Minimize runtime dependencies between teams
 
 ---
@@ -43,13 +44,13 @@ The platform consists of:
 - OpenAPI Aggregator
 - Kubernetes Deployment Platform
 
-The architecture follows a capability-hosting model.
-
 Feature API Plugins expose HTTP endpoints.
 
-Capability Packages contain reusable business functionality distributed as independently versioned npm packages.
+Capability Packages provide reusable business functionality.
 
-Azure App Configuration controls API exposure through Feature Flags.
+Azure App Configuration controls plugin availability.
+
+The Runtime hosts enabled Feature API Plugins and exposes them through a unified API endpoint.
 
 ---
 
@@ -77,7 +78,7 @@ Capability Packages
 
 Enterprise Systems
 
-Azure App Configuration controls which plugins are exposed.
+Azure App Configuration controls plugin activation.
 
 ---
 
@@ -88,15 +89,14 @@ Azure App Configuration controls which plugins are exposed.
 Responsibilities:
 
 - Plugin Discovery
-- Plugin Loading
 - Plugin Registration
 - Route Hosting
+- Feature Evaluation
 - Authentication
 - Authorization
 - Request Validation
 - OpenAPI Aggregation
 - Health Monitoring
-- Feature Evaluation
 - Telemetry
 
 Produces:
@@ -109,7 +109,9 @@ The Runtime shall remain stateless.
 
 ## 5.2 Plugin SDK
 
-The Plugin SDK defines contracts used by Feature API Plugins.
+Purpose:
+
+Provide contracts used by Feature API Plugins.
 
 Responsibilities:
 
@@ -121,7 +123,9 @@ Responsibilities:
 
 Produces:
 
-- @company/plugin-sdk
+```text
+@company/plugin-sdk
+```
 
 The Plugin SDK shall be independently versioned and published.
 
@@ -129,7 +133,7 @@ The Plugin SDK shall be independently versioned and published.
 
 ## 5.3 Plugin Catalog
 
-The Plugin Catalog defines available plugins.
+Defines which plugins may be activated.
 
 Example:
 
@@ -142,13 +146,13 @@ Example:
 }
 ```
 
-Only catalog-registered plugins are eligible for activation.
+Only registered plugins are eligible for activation.
 
 ---
 
 ## 5.4 Azure App Configuration
 
-Azure App Configuration is the authoritative source for plugin activation.
+Acts as the platform control plane.
 
 Example:
 
@@ -156,6 +160,12 @@ Example:
 WeatherApi = Enabled
 CustomerApi = Disabled
 ```
+
+Responsibilities:
+
+- Feature Flag Evaluation
+- Runtime Activation Control
+- Dynamic Refresh
 
 Missing Feature Flags shall be treated as disabled.
 
@@ -168,14 +178,15 @@ Feature API Plugins expose HTTP endpoints.
 Responsibilities:
 
 - Route Definitions
-- OpenAPI Metadata
 - Request Mapping
 - Response Mapping
+- OpenAPI Metadata
 - Capability Orchestration
 
 Feature API Plugins shall not:
 
 - Implement business rules
+- Implement domain validation
 - Access databases directly
 - Access enterprise systems directly
 - Implement authentication
@@ -185,13 +196,15 @@ Feature API Plugins shall not:
 
 ## 5.6 Capability Packages
 
-Capability Packages provide reusable business functionality.
+Capability Packages contain reusable business functionality.
 
 Examples:
 
-- @company/capability-customer
-- @company/capability-billing
-- @company/capability-weather
+```text
+@company/capability-customer
+@company/capability-billing
+@company/capability-weather
+```
 
 Responsibilities:
 
@@ -207,7 +220,7 @@ Capability Packages shall not expose HTTP endpoints.
 
 # 6. Repository Architecture
 
-## Runtime Repository
+## Platform Repository
 
 Repository:
 
@@ -233,6 +246,8 @@ Produces:
 - Runtime Container
 - Plugin SDK
 - Capability Packages
+
+Changesets shall manage package publishing.
 
 ---
 
@@ -263,20 +278,36 @@ The platform maintains independent version streams for:
 
 Semantic Versioning shall be used.
 
-Examples:
+Changesets shall automate package version management and publishing.
+
+Example:
 
 ```text
-Runtime                1.3.0
+Runtime                1.2.0
 Plugin SDK             1.1.0
-Customer Capability    2.4.1
-Customer API Plugin    1.7.3
+Capability Customer    2.4.1
+Customer API Plugin    1.7.0
 ```
-
-Changesets shall be used to automate version management and package publishing.
 
 ---
 
-# 8. Runtime Lifecycle
+# 8. Dependency Model
+
+Feature API Plugins shall consume:
+
+```text
+@company/plugin-sdk
+```
+
+and required Capability Packages through npm dependencies.
+
+A Runtime instance shall host only one active major version of a Capability Package.
+
+Multiple major versions of the same Capability Package shall not be loaded into the same Runtime process.
+
+---
+
+# 9. Runtime Lifecycle
 
 Startup Sequence:
 
@@ -291,7 +322,7 @@ Startup Sequence:
 Refresh Sequence:
 
 1. Refresh Azure App Configuration
-2. Evaluate Feature Flags
+2. Re-evaluate Feature Flags
 3. Update Plugin Availability
 4. Regenerate OpenAPI
 
@@ -299,14 +330,14 @@ No Runtime restart shall be required.
 
 ---
 
-# 9. Validation Architecture
+# 10. Validation Architecture
 
 ## Layer 1 Validation
 
 Location:
 
 ```text
-platform/validation
+packages/validation
 ```
 
 Technology:
@@ -319,8 +350,8 @@ Responsibilities:
 
 - Request Validation
 - Response Validation
-- Plugin Manifest Validation
 - Configuration Validation
+- Plugin Manifest Validation
 
 ---
 
@@ -342,11 +373,11 @@ Feature API Plugins shall not implement Layer 2 validation.
 
 ---
 
-# 10. OpenAPI Architecture
+# 11. OpenAPI Architecture
 
-The Runtime shall dynamically aggregate OpenAPI metadata from enabled plugins.
+The Runtime shall aggregate OpenAPI metadata from enabled plugins.
 
-Only enabled APIs shall appear within:
+Only enabled plugins shall appear in:
 
 ```text
 /swagger
@@ -355,7 +386,7 @@ Only enabled APIs shall appear within:
 
 ---
 
-# 11. Security Architecture
+# 12. Security Architecture
 
 Authentication:
 
@@ -373,7 +404,7 @@ Security enforcement shall occur centrally within the Runtime.
 
 ---
 
-# 12. Observability
+# 13. Observability
 
 OpenTelemetry shall provide tracing across:
 
@@ -381,7 +412,7 @@ OpenTelemetry shall provide tracing across:
 - Feature API Plugins
 - Capability Packages
 
-Required telemetry metadata:
+Telemetry shall include:
 
 - plugin.name
 - plugin.version
@@ -389,9 +420,31 @@ Required telemetry metadata:
 
 ---
 
-# 13. Deployment Architecture
+# 14. Health Monitoring
 
-Platform:
+The Runtime shall expose health information for:
+
+- Runtime
+- Azure App Configuration
+- Plugin Catalog
+- Loaded Plugins
+
+---
+
+# 15. Version Visibility
+
+The Runtime shall expose version information for:
+
+- Runtime Version
+- Plugin SDK Version
+- Loaded Plugin Versions
+- Capability Package Versions
+
+---
+
+# 16. Deployment Architecture
+
+Deployment Platform:
 
 ```text
 Kubernetes
@@ -405,14 +458,14 @@ Supported Environments:
 - PREPROD
 - PROD
 
-Runtime shall remain stateless.
+The Runtime shall remain stateless.
 
 ---
 
-# 14. Future Considerations
+# 17. Future Considerations
 
-- Per-tenant Feature Flags
+- Per-Tenant Feature Flags
 - Plugin Marketplace
 - Usage Analytics
 - Dependency Scanning
-- Multi-region Deployment
+- Multi-Region Deployment
