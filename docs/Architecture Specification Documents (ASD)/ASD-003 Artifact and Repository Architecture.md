@@ -27,10 +27,11 @@ The purpose of this document is to define:
 - Publishing responsibilities
 - Version ownership
 - Dependency ownership
+- Distribution responsibilities
 
-This document establishes where platform assets reside, who owns them, and how they are distributed.
+This document establishes where platform assets reside, who owns them, and how they are distributed across the platform.
 
-Implementation behavior of capabilities, plugins, runtime execution, compatibility validation, startup procedures, deployment workflows, and security concerns are defined in subsequent Architecture Specification Documents. 【1-bf2ca1】【2-30b71d】
+Implementation behavior of capabilities, plugins, runtime execution, compatibility validation, startup procedures, deployment workflows, observability concerns, and security controls are described in subsequent Architecture Specification Documents.
 
 ---
 
@@ -42,12 +43,12 @@ The repository architecture shall support:
 - Independent Release Cycles
 - Capability Reuse
 - Runtime Governance
-- Controlled Compatibility
+- Controlled Capability Evolution
 - Minimal Cross-Team Dependencies
 
-Repository structure shall reflect ownership boundaries rather than deployment boundaries.
+Repository boundaries shall reflect ownership boundaries rather than deployment boundaries.
 
-Artifact publication shall remain independent wherever possible.
+Artifact publication and activation shall remain independent processes.
 
 ---
 
@@ -74,8 +75,16 @@ Capability SDK Packages provide:
 - Development Interfaces
 - Developer Tooling
 - Version Metadata
+- Compatibility Metadata
 
 Capability SDK Packages do not provide runtime hosting.
+
+Capability SDK Packages are consumed during:
+
+- Development
+- Build
+- Testing
+- Local Debugging
 
 ---
 
@@ -120,7 +129,7 @@ The Runtime Image provides:
 - Capability Implementation Hosting
 - Plugin Hosting
 - Runtime Governance
-- Capability Selection
+- Capability Implementation Selection
 - Capability Governance
 - API Exposure
 
@@ -157,26 +166,26 @@ Feature API Plugin Packages are owned by Feature Teams.
 
 Published platform artifacts are distributed through platform-approved package distribution mechanisms.
 
-The package distribution mechanism is responsible for storing and distributing:
+Package distribution infrastructure is responsible for storing and distributing:
 
 - Capability SDK Packages
 - Feature API Plugin Packages
 
-The package distribution mechanism is not responsible for:
+Package distribution infrastructure is not responsible for:
 
 - Plugin Activation
 - Plugin Discovery
 - Capability Selection
 - Runtime Governance
 
-Examples of package distribution mechanisms include:
+Examples include:
 
 - Nexus Repository
 - Azure Artifacts
 - GitHub Packages
 - Private npm Registries
 
-The specific implementation is outside the scope of this document.
+The specific implementation remains outside the scope of this document.
 
 ---
 
@@ -334,7 +343,7 @@ Publish:
 @company/capability-customer
 ```
 
-Publishing one capability shall not require publishing unrelated capabilities.
+Publishing one capability shall not require publication of unrelated capabilities.
 
 ---
 
@@ -434,7 +443,7 @@ runtime
 2.0.0
 ```
 
-Runtime versions are independent from plugin versions.
+Runtime versions are independent from Feature API Plugin versions.
 
 ---
 
@@ -448,7 +457,7 @@ The architecture maintains independent version streams for:
 
 A version change in one artifact type does not imply a version change in another artifact type.
 
-Examples:
+Example:
 
 ```text
 Runtime:
@@ -488,10 +497,10 @@ Example:
 
 Capability SDK Packages provide:
 
-- Contracts
-- Interfaces
+- Capability Contracts
+- Development Interfaces
 - Type Definitions
-- Development Tooling
+- Developer Tooling
 
 This dependency exists only during development and build activities.
 
@@ -577,7 +586,7 @@ Examples:
 2.0.0
 ```
 
-Versioning policies governing capability contracts are defined in ASD-007 Capability Compatibility and Governance.
+Versioning policies governing Capability Contracts are defined in ASD-007 Capability Compatibility and Governance.
 
 ---
 
@@ -588,6 +597,7 @@ The Platform Team governs:
 - Runtime Releases
 - Capability SDK Releases
 - Capability Contract Evolution
+- Capability Compatibility Windows
 - Compatibility Policies
 
 Feature Teams govern:
@@ -595,6 +605,10 @@ Feature Teams govern:
 - Feature API Plugin Releases
 
 Publication and activation remain separate processes.
+
+Ownership of Runtime releases, Capability SDK releases, Capability Contract evolution, and Capability compatibility governance remains with the Platform Team.
+
+Ownership of Feature API Plugin release schedules remains with Feature Teams.
 
 ---
 
