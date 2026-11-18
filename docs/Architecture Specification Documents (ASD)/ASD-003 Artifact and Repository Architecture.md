@@ -28,9 +28,9 @@ The purpose of this document is to define:
 - Version ownership
 - Dependency ownership
 
-This document defines where platform assets reside and how they are distributed across repositories.
+This document establishes where platform assets reside, who owns them, and how they are distributed.
 
-Implementation behavior of capabilities, plugins, runtime execution, compatibility validation, startup procedures, deployment workflows, and security are described in subsequent Architecture Specification Documents.
+Implementation behavior of capabilities, plugins, runtime execution, compatibility validation, startup procedures, deployment workflows, and security concerns are defined in subsequent Architecture Specification Documents. 【1-bf2ca1】【2-30b71d】
 
 ---
 
@@ -47,11 +47,13 @@ The repository architecture shall support:
 
 Repository structure shall reflect ownership boundaries rather than deployment boundaries.
 
+Artifact publication shall remain independent wherever possible.
+
 ---
 
 # 3. Managed Artifact Types
 
-The platform manages three primary artifact types:
+The platform manages three primary artifact types.
 
 ## 3.1 Capability SDK Packages
 
@@ -119,8 +121,10 @@ The Runtime Image provides:
 - Plugin Hosting
 - Runtime Governance
 - Capability Selection
-- Capability Compatibility Enforcement
+- Capability Governance
 - API Exposure
+
+The Runtime Image is the authoritative owner of Runtime-hosted Capability Implementations.
 
 ---
 
@@ -143,9 +147,36 @@ Feature Repositories
 └── weather-api-plugin
 ```
 
-Runtime and capabilities are owned by the Platform Team.
+Runtime and Capability SDK Packages are owned by the Platform Team.
 
-Feature API Plugins are owned by Feature Teams.
+Feature API Plugin Packages are owned by Feature Teams.
+
+---
+
+## 4.1 Package Distribution Infrastructure
+
+Published platform artifacts are distributed through platform-approved package distribution mechanisms.
+
+The package distribution mechanism is responsible for storing and distributing:
+
+- Capability SDK Packages
+- Feature API Plugin Packages
+
+The package distribution mechanism is not responsible for:
+
+- Plugin Activation
+- Plugin Discovery
+- Capability Selection
+- Runtime Governance
+
+Examples of package distribution mechanisms include:
+
+- Nexus Repository
+- Azure Artifacts
+- GitHub Packages
+- Private npm Registries
+
+The specific implementation is outside the scope of this document.
 
 ---
 
@@ -212,9 +243,12 @@ runtime:<version>
 @company/capability-customer
 @company/capability-billing
 @company/capability-notification
+@company/capability-weather
 ```
 
-No Feature API Plugin Packages are produced by the Platform Repository.
+The Platform Repository does not produce Feature API Plugin Packages.
+
+Runtime-hosted Capability Implementations are runtime artifacts and not independently distributed artifacts.
 
 ---
 
@@ -245,7 +279,7 @@ Example:
 
 ```text
 customer-api-plugin
-    ↓
+      ↓
 @company/customer-api-plugin
 ```
 
@@ -266,7 +300,7 @@ Feature Teams do not own:
 - Capability Contracts
 - Capability Implementations
 - Runtime Governance
-- Compatibility Governance
+- Capability Compatibility Governance
 
 ---
 
@@ -296,7 +330,7 @@ Example:
 ```text
 capability-customer changed
         ↓
-Publish only:
+Publish:
 @company/capability-customer
 ```
 
@@ -313,11 +347,11 @@ Example:
 ```text
 customer-api-plugin changed
         ↓
-Publish only:
+Publish:
 @company/customer-api-plugin
 ```
 
-Publishing one plugin shall not require publication of other plugins.
+Publishing one plugin shall not require publication of unrelated plugins.
 
 ---
 
@@ -333,9 +367,29 @@ Runtime releases shall not automatically republish Capability SDK Packages.
 
 ---
 
-# 9. Version Ownership Model
+## 8.4 Independent Publication Principle
 
-The architecture maintains independent version streams.
+The publication of a Capability SDK Package shall not require publication of:
+
+- Unrelated Capability SDK Packages
+- Feature API Plugin Packages
+- Runtime Images
+
+The publication of a Feature API Plugin Package shall not require publication of:
+
+- Capability SDK Packages
+- Runtime Images
+
+The publication of a Runtime Image shall not require publication of:
+
+- Feature API Plugin Packages
+- Capability SDK Packages
+
+Artifact publication boundaries remain intentionally independent.
+
+---
+
+# 9. Version Ownership Model
 
 ## 9.1 Capability SDK Package Versions
 
@@ -343,9 +397,10 @@ Examples:
 
 ```text
 @company/capability-customer
-    1.0.0
-    1.1.0
-    2.0.0
+
+1.0.0
+1.1.0
+2.0.0
 ```
 
 Capability SDK Packages are versioned independently.
@@ -358,11 +413,12 @@ Examples:
 
 ```text
 customer-api-plugin
-    1.0.0
-    1.1.0
+
+1.0.0
+1.1.0
 ```
 
-Plugins are versioned independently.
+Feature API Plugin Packages are versioned independently.
 
 ---
 
@@ -372,12 +428,42 @@ Examples:
 
 ```text
 runtime
-    1.0.0
-    1.1.0
-    2.0.0
+
+1.0.0
+1.1.0
+2.0.0
 ```
 
-Runtime versions are independent of plugin versions.
+Runtime versions are independent from plugin versions.
+
+---
+
+## 9.4 Independent Version Streams
+
+The architecture maintains independent version streams for:
+
+- Capability SDK Packages
+- Feature API Plugin Packages
+- Runtime Images
+
+A version change in one artifact type does not imply a version change in another artifact type.
+
+Examples:
+
+```text
+Runtime:
+  2.0.0
+
+Capability SDK:
+  customer-sdk 3.1.0
+
+Plugin:
+  customer-api-plugin 1.4.0
+```
+
+All version streams evolve independently.
+
+Version dependency governance is defined in ASD-007 Capability Compatibility and Governance.
 
 ---
 
@@ -405,8 +491,9 @@ Capability SDK Packages provide:
 - Contracts
 - Interfaces
 - Type Definitions
+- Development Tooling
 
-This dependency exists only at build time.
+This dependency exists only during development and build activities.
 
 ---
 
@@ -417,7 +504,7 @@ During runtime execution:
 - Capability SDK Packages are not used directly.
 - Runtime-hosted Capability Implementations are used.
 - Runtime selects active Capability Implementations.
-- Runtime governs Capability Implementation versions.
+- Runtime governs Capability Implementation selection.
 
 Feature API Plugins do not determine which Capability Implementation versions are active.
 
@@ -467,7 +554,7 @@ Examples include:
 - Azure Artifacts
 - GitHub Packages
 
-The specific implementation is outside the scope of this document.
+The specific implementation remains outside the scope of this document.
 
 ---
 
@@ -475,11 +562,13 @@ The specific implementation is outside the scope of this document.
 
 Semantic Versioning shall be used.
 
-Examples:
+Format:
 
 ```text
 Major.Minor.Patch
 ```
+
+Examples:
 
 ```text
 1.0.0
@@ -488,7 +577,7 @@ Major.Minor.Patch
 2.0.0
 ```
 
-Versioning policies for capability contracts are defined in ASD-007 Capability Compatibility and Governance.
+Versioning policies governing capability contracts are defined in ASD-007 Capability Compatibility and Governance.
 
 ---
 
@@ -505,7 +594,7 @@ Feature Teams govern:
 
 - Feature API Plugin Releases
 
-Activation of a plugin and publication of a plugin are separate processes.
+Publication and activation remain separate processes.
 
 ---
 
@@ -519,6 +608,8 @@ The following constraints apply:
 - Runtime Capability Implementation selection shall remain under Runtime control.
 - Runtime Image releases shall remain independent from Plugin releases.
 - Capability SDK Package releases shall remain independent from Runtime releases.
+- Capability SDK Packages shall remain consumable as standard package dependencies during development and build activities.
+- Plugin Catalog metadata and package distribution mechanisms shall remain independently governed.
 
 ---
 
