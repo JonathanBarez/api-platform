@@ -21,7 +21,7 @@ The purpose of this document is to describe the high-level structure of the API 
 
 This document establishes the solution view of the platform and introduces the major building blocks that participate in API delivery.
 
-Detailed implementation, operational, deployment, validation, and compatibility behaviors are described in subsequent Architecture Specification Documents.
+Detailed implementation, operational, deployment, validation, compatibility, and governance behaviors are described in subsequent Architecture Specification Documents.
 
 ---
 
@@ -29,19 +29,25 @@ Detailed implementation, operational, deployment, validation, and compatibility 
 
 The platform follows a capability-centric architecture that separates reusable business functionality from API-specific implementations.
 
-The architecture consists of three primary artifact types:
+The architecture consists of three primary managed artifact types:
 
 1. Capability SDK Packages
 2. Feature API Plugin Packages
 3. Runtime Image
 
-Feature API Plugins expose HTTP APIs.
+Feature API Plugins expose API functionality.
 
 Capability SDK Packages provide reusable business capabilities.
 
-The Runtime Image provides a common execution environment for hosting APIs and enforcing platform standards.
+The Runtime Image provides the common execution environment in which APIs are hosted and platform standards are enforced.
 
-This separation enables capability reuse, independent team ownership, and centralized operational governance.
+This separation enables:
+
+- Reuse of business capabilities
+- Independent team ownership
+- Operational consistency
+- Platform governance
+- Independent release cycles
 
 ---
 
@@ -78,54 +84,50 @@ Feature API Plugins provide API-specific implementations.
 Responsibilities include:
 
 - Route Definitions
+- API Contracts
 - Request Mapping
 - Response Mapping
 - OpenAPI Metadata
 - Capability Orchestration
 
-Feature API Plugins consume Capability SDK Packages rather than implementing business logic directly.
+Feature API Plugins consume Capability SDK Packages rather than implementing business functionality directly.
 
 ---
 
 ## 3.3 Runtime Image
 
-The Runtime Image hosts APIs and provides platform-managed infrastructure capabilities.
+The Runtime Image provides the execution environment for the platform.
 
 Responsibilities include:
 
 - Plugin Hosting
 - Capability Hosting
-- Authentication
-- Authorization
-- Validation
-- Feature Management
-- Telemetry
-- OpenAPI Exposure
+- Runtime Governance
+- API Exposure
+- Contract Enforcement
+- Operational Control
 
-The Runtime acts as the execution environment for all enabled APIs.
+Detailed Runtime behavior is defined in ASD-006 Runtime Architecture.
 
 ---
 
 ## 3.4 Plugin Catalog
 
-The Plugin Catalog acts as the registration authority for Feature API Plugins.
+The Plugin Catalog is a metadata source used by the Runtime to identify available Feature API Plugins.
 
-Only plugins registered in the Plugin Catalog are eligible for Runtime activation.
+The Plugin Catalog contains plugin metadata required for Runtime discovery and activation.
 
-The Plugin Catalog defines:
-
-- Plugin Identifier
-- Package Name
-- Package Version
-- Activation Metadata
+The exact metadata structure is defined in ASD-003 Artifact and Repository Architecture.
 
 ---
 
-## 3.5 Azure App Configuration
+## 3.5 Platform Configuration
 
-Azure App Configuration controls runtime feature exposure.
+Platform Configuration controls runtime feature exposure.
 
-The Runtime evaluates configured feature flags to determine which registered plugins should be exposed.
+The Runtime consumes centrally managed configuration to determine which registered platform functionality should be exposed.
+
+The selected implementation and operational behavior are defined in ASD-006 Runtime Architecture.
 
 ---
 
@@ -143,25 +145,25 @@ External Consumers
               ▼
 
 ┌─────────────────────────────┐
-│    Feature API Plugins      │
+│   Feature API Plugins       │
 └─────────────┬───────────────┘
               │
               ▼
 
 ┌─────────────────────────────┐
-│   Capability SDK Packages   │
+│  Capability SDK Packages    │
 └─────────────┬───────────────┘
               │
               ▼
 
 ┌─────────────────────────────┐
-│    Enterprise Systems       │
+│   Enterprise Systems        │
 └─────────────────────────────┘
 
-Azure App Configuration
+Platform Configuration
           │
           ▼
-Controls Plugin Exposure
+Controls Runtime Feature Exposure
 ```
 
 ---
@@ -174,7 +176,7 @@ The Runtime hosts Feature API Plugins.
 
 Feature API Plugins execute exclusively within the Runtime environment.
 
-The Runtime provides hosting, governance, and execution services.
+The Runtime provides the hosting, execution, and governance environment for all loaded plugins.
 
 ---
 
@@ -182,9 +184,9 @@ The Runtime provides hosting, governance, and execution services.
 
 Feature API Plugins consume Capability SDK Packages.
 
-Feature API Plugins use capabilities to access reusable business functionality.
+Feature API Plugins use Capability SDK Packages to access reusable business functionality.
 
-Business rules remain encapsulated within Capability SDK Packages.
+Business logic remains encapsulated inside Capability SDK Packages.
 
 ---
 
@@ -192,15 +194,17 @@ Business rules remain encapsulated within Capability SDK Packages.
 
 Capability SDK Packages encapsulate interactions with Enterprise Systems.
 
-Enterprise integration concerns are isolated from Feature API Plugins.
+Enterprise integration responsibilities are isolated from Feature API Plugins.
+
+Enterprise systems are accessed only through Capability SDK boundaries.
 
 ---
 
 ## 5.4 Feature Management Relationship
 
-Azure App Configuration controls Runtime feature exposure.
+Platform Configuration controls Runtime feature exposure.
 
-The Runtime determines which registered plugins are available based on platform configuration.
+The Runtime determines which registered plugins are available based on centrally managed platform configuration.
 
 ---
 
@@ -211,11 +215,10 @@ The Runtime determines which registered plugins are available based on platform 
 The Runtime owns:
 
 - Hosting
-- Security
-- Validation
-- Observability
-- Feature Exposure
-- Platform Governance
+- Runtime Governance
+- API Exposure
+- Platform Operations
+- Cross-Cutting Platform Services
 
 ---
 
@@ -228,7 +231,7 @@ Capability SDK Packages own:
 - Enterprise Integration
 - Error Translation
 
-Capability SDK Packages do not expose HTTP endpoints.
+Capability SDK Packages shall not expose HTTP endpoints.
 
 ---
 
@@ -237,6 +240,7 @@ Capability SDK Packages do not expose HTTP endpoints.
 Feature API Plugins own:
 
 - API Contracts
+- Route Definitions
 - Request Mapping
 - Response Mapping
 - OpenAPI Metadata
@@ -245,13 +249,14 @@ Feature API Plugins do not own:
 
 - Business Rules
 - Enterprise Integrations
-- Security Controls
+- Capability Implementations
+- Runtime Governance
 
 ---
 
 # 7. Solution Interaction Flow
 
-A standard request follows the sequence below:
+A typical request follows the sequence below:
 
 ```text
 Consumer
@@ -267,10 +272,9 @@ Enterprise System
 
 The Runtime provides:
 
-- Security
-- Validation
-- Feature Exposure
-- Telemetry
+- Cross-Cutting Platform Services
+- API Exposure
+- Runtime Governance
 
 Feature API Plugins provide:
 
@@ -284,18 +288,25 @@ Capability SDK Packages provide:
 - Domain Validation
 - Enterprise Integration
 
+A request is not required to invoke an Enterprise System.
+
+Capability SDK Packages may satisfy requests entirely through locally executed business logic.
+
 ---
 
 # 8. Architectural Constraints
 
 The architecture establishes the following constraints:
 
-- Capability SDK implementations are hosted exclusively by the Runtime.
+- Capability SDK implementations shall be hosted exclusively by the Runtime.
+- Capability SDK implementation selection shall be controlled by the Runtime.
 - Feature API Plugins shall not bundle Capability SDK implementations.
 - Feature API Plugins shall not directly access Enterprise Systems.
 - Feature API Plugins shall not contain reusable business rules.
 - Capability SDK Packages shall not expose HTTP endpoints.
 - Runtime instances shall remain stateless.
+
+These constraints preserve architectural consistency, maintainability, and governance.
 
 ---
 
@@ -308,8 +319,8 @@ Responsible for:
 - Runtime Image
 - Capability SDK Packages
 - Platform Governance
-- Security Standards
 - Operational Standards
+- Architectural Standards
 
 ---
 
@@ -329,7 +340,7 @@ Responsible for:
 Responsible for:
 
 - Runtime Deployment
-- Monitoring
+- Runtime Monitoring
 - Environment Management
 - Operational Support
 
