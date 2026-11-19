@@ -20,7 +20,7 @@ The objective of this Proof of Concept (PoC) is to validate a lightweight capabi
 
 The platform shall demonstrate that:
 
-- Reusable capabilities can be developed independently.
+- Reusable capabilities can be developed, versioned, and evolved independently from Feature API Plugins.
 - Feature APIs can be developed independently.
 - A Runtime can host and activate Feature API Plugins.
 - Platform Configuration can control API exposure.
@@ -179,9 +179,31 @@ Provides:
 
 ---
 
-# 5. Repository Structure
+## 5. Repository Structure
 
-## Platform Repository
+### 5.1 Repository Strategy
+
+The architecture follows a hybrid repository strategy.
+
+The Core Team maintains a monorepo containing:
+
+- Runtime
+- Capability SDK Packages
+- Capability Implementations
+- Plugin Catalog
+- Core Team-owned Feature API Plugins
+
+Feature Teams may maintain independent repositories containing Feature API Plugins.
+
+This approach centralizes ownership of Runtime behavior, Capability Implementations, Business Logic, Domain Validation, and Capability Contract Compatibility while allowing Feature Teams to independently develop and release Feature API Plugin Packages.
+
+Repository location does not alter architectural responsibilities.
+
+All Feature API Plugins, regardless of repository ownership, remain subject to the Feature API Plugin responsibilities and constraints defined in this document.
+
+---
+
+### 5.2 Runtime Monorepo
 
 ```text
 api-platform-runtime
@@ -195,6 +217,10 @@ api-platform-runtime
 │   ├── customer/
 │   └── random-quote/
 │
+├── plugins/
+│   ├── weather-api/
+│   └── time-api/
+│
 ├── catalog/
 │   └── plugins.json
 │
@@ -205,19 +231,131 @@ Produces:
 
 - Runtime Image
 - Capability SDK Packages
+- Core Team-owned Feature API Plugin Packages
+
+Contains:
+
+- Runtime-hosted Capability Implementations
+- Plugin Catalog
+
+Owns:
+
+- Runtime
+- Capability Contracts
+- Capability Implementations
+- Business Logic
+- Domain Validation
+- Capability Contract Compatibility
+- Plugin Catalog
 
 ---
 
-## Feature Repositories
+### 5.3 Feature API Plugin Repositories
+
+Feature Teams may maintain independent repositories containing Feature API Plugins.
+
+Examples:
 
 ```text
-weather-api-plugin
-time-api-plugin
-customer-api-plugin
-random-quote-api-plugin
+customer-billing-api-plugin
+
+customer-orders-api-plugin
+
+customer-profile-api-plugin
 ```
 
-Each repository produces a single Feature API Plugin Package.
+Produces:
+
+- Feature API Plugin Packages
+
+Owns:
+
+- Route Definitions
+- Request Mapping
+- Response Mapping
+- OpenAPI Metadata
+
+Excluded Responsibilities:
+
+- Business Logic
+- Domain Validation
+- Enterprise Integrations
+- Capability Implementations
+
+Feature API Plugins consume Capability SDK Packages as development dependencies.
+
+Feature API Plugins interact with Capability Implementations through Capability Contracts only.
+
+---
+
+### 5.4 Package Distribution
+
+Capability SDK Packages are published from the Runtime Monorepo.
+
+Feature API Plugin Packages may be published from:
+
+- The Runtime Monorepo
+- Feature API Plugin Repositories
+
+All packages are versioned and distributed through the approved package repository.
+
+Capability SDK Packages are build-time artifacts.
+
+Feature API Plugin Packages are deployable API artifacts.
+
+---
+
+### 5.5 Deployment Assembly
+
+Runtime deployments may include:
+
+- Runtime Image
+- Zero or more Feature API Plugin Packages
+
+A deployment process may:
+
+```text
+Build Runtime Image
+        ↓
+Select Approved Feature API Plugin Packages
+        ↓
+Assemble Deployment
+        ↓
+Deploy Runtime
+```
+
+The deployment process is implementation-specific and outside the Runtime Startup Sequence.
+
+---
+
+### 5.6 Ownership Boundary
+
+Core Team Ownership
+
+- Runtime
+- Capability SDK Packages
+- Capability Contracts
+- Capability Implementations
+- Business Logic
+- Domain Validation
+- Capability Contract Compatibility
+- Plugin Catalog
+
+Feature Team Ownership
+
+- Feature API Plugin Packages
+- Route Definitions
+- Request Mapping
+- Response Mapping
+- OpenAPI Metadata
+
+Feature API Plugins shall remain thin orchestration layers.
+
+Feature API Plugins shall not contain Business Logic.
+
+Feature API Plugins shall not contain Domain Validation.
+
+Feature API Plugins shall consume capabilities through Capability Contracts provided by Capability SDK Packages.
 
 ---
 
@@ -625,7 +763,7 @@ The Runtime aggregates active plugin metadata into a single OpenAPI specificatio
 
 - Capability SDK Packages shall not expose HTTP endpoints.
 - Capability Implementations shall remain Runtime-hosted.
-- Feature API Plugins shall not contain reusable business logic.
+- Feature API Plugins shall not contain Business Logic.
 - Feature API Plugins shall not directly access data sources.
 - Runtime shall remain stateless.
 - Runtime shall own Capability Implementation selection.
@@ -676,11 +814,13 @@ These concerns are intentionally deferred.
 | Capability SDK Package | Build-time artifact |
 | Capability Contract | Public capability interface |
 | Capability Implementation | Runtime-hosted executable implementation |
-| Feature API Plugin Package | Deployable plugin artifact |
+| Feature API Plugin Package | Deployable API artifact |
 | Feature API Plugin | Runtime-loaded plugin |
 | Runtime Image | Runtime execution host |
 | Plugin Catalog | Plugin metadata source |
 | Platform Configuration | Feature exposure configuration |
+| Core Team | Owner of the Runtime, Capability SDK Packages, Capability Implementations, and Plugin Catalog |
+| Feature Team | Owner of one or more Feature API Plugin Packages |
 
 ---
 
