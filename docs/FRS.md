@@ -2,442 +2,317 @@
 
 ## API Platform Modernization Initiative
 
-Version: 3.1
+### Version
 
-Status: Draft
+1.0
 
----
+### Status
 
-# Runtime Requirements
+PoC / MVP
 
-## FR-001
+### Reference Architecture
 
-The Runtime shall discover plugin definitions from the Plugin Catalog.
-
-## FR-002
-
-The Runtime shall resolve plugin packages from the configured package source.
-
-## FR-003
-
-The Runtime shall load enabled Feature API Plugins.
-
-## FR-004
-
-The Runtime shall expose OpenAPI documentation.
-
-## FR-005
-
-The Runtime shall collect centralized telemetry.
-
-## FR-006
-
-The Runtime shall remain stateless.
+This specification is derived from [ASD 2.md](https://proximuscorp-my.sharepoint.com/personal/jonathan_barez_ext_proximus_com/Documents/Microsoft%20Copilot%20Chat%20Files/Copilot%20Notebook%20Uploads/ASD%202.md?EntityRepresentationId=71bb7741-2c31-497b-b76d-6b6161d19198). The purpose of this document is to define the functional behavior required to validate the API Platform Modernization Proof of Concept.
 
 ---
 
-# Azure App Configuration Requirements
+# 1\. Introduction
 
-## FR-007
+## 1.1 Purpose
 
-The Runtime shall integrate with Azure App Configuration Feature Management.
+The platform shall demonstrate:
 
-## FR-008
+- Reusable capabilities can be developed independently from Feature API Plugins.
+- Feature API Plugins can be developed independently.
+- Runtime\-hosted capability execution.
+- Contract\-based capability resolution.
+- Platform Configuration driven activation.
+- OpenAPI aggregation from active plugins.
 
-Azure App Configuration shall be the authoritative source for plugin activation.
+## 1.2 Scope
 
-## FR-009
-
-The Runtime shall evaluate plugin availability through Feature Flags.
-
-## FR-010
-
-Missing Feature Flags shall be treated as disabled.
-
-## FR-011
-
-The Runtime shall refresh Feature Flag state without redeployment.
-
-## FR-012
-
-Feature Flag changes shall not require Runtime restart.
-
----
-
-# Plugin Activation Requirements
-
-## FR-013
-
-A plugin shall only be exposed when:
-
-- It exists within the Plugin Catalog
-- Its Feature Flag exists
-- Its Feature Flag is enabled
-
-## FR-014
-
-Disabled plugins shall not be callable.
-
-## FR-015
-
-Disabled plugins shall not appear in OpenAPI documentation.
-
-## FR-016
-
-Plugin availability shall automatically reflect Feature Flag changes.
-
----
-
-# Plugin SDK Requirements
-
-## FR-017
-
-The Plugin SDK shall be independently versioned.
-
-## FR-018
-
-The Plugin SDK shall define:
-
-- PluginManifest
-- PluginDefinition
-- PluginRoute
-- PluginContext
-
-## FR-019
-
-Feature API Plugins shall consume the Plugin SDK.
-
----
-
-# Feature API Plugin Requirements
-
-## FR-020
-
-Feature API Plugins shall be independently developed.
-
-## FR-021
-
-Feature API Plugins shall expose REST endpoints.
-
-## FR-022
-
-Feature API Plugins shall consume Capability Packages.
-
-## FR-023
-
-Feature API Plugins shall declare consumed Capability Packages.
-
-## FR-024
-
-Feature API Plugins shall not access enterprise systems directly.
-
-## FR-025
-
-Feature API Plugins shall not implement business validation.
-
-## FR-026
-
-Feature API Plugins shall not implement authentication or authorization logic.
-
----
-
-# Capability Package Requirements
-
-## FR-027
-
-Capability Packages shall be distributed as npm packages.
-
-## FR-028
-
-Capability Packages shall be independently versioned.
-
-## FR-029
-
-Capability Packages shall encapsulate backend integrations.
-
-## FR-030
-
-Capability Packages shall encapsulate domain validation.
-
-## FR-031
-
-Capability Packages shall encapsulate business rules.
-
-## FR-032
-
-Capability Packages shall expose strongly typed interfaces.
-
-## FR-033
-
-Capability Packages shall not expose HTTP endpoints.
-
----
-
-# Versioning Requirements
-
-## FR-034
-
-Runtime releases shall be versioned independently.
-
-## FR-035
-
-Plugin SDK releases shall be versioned independently.
-
-## FR-036
-
-Capability Packages shall be versioned independently.
-
-## FR-037
-
-Feature API Plugins shall be versioned independently.
-
-## FR-038
-
-Changesets shall determine version increments, generate changelogs, and publish modified packages.
-
-## FR-039
-
-Only modified packages shall require publication.
-
----
-
-# Dependency Requirements
-
-## FR-040
-
-Feature API Plugins shall consume Capability Packages through npm dependencies.
-
-## FR-041
-
-Publishing a Capability Package shall not automatically update consuming plugins.
-
-## FR-042
-
-A Runtime instance shall host only one active major version of a Capability Package.
-
----
-
-# Validation Requirements
-
-## FR-043
-
-The Runtime shall validate incoming requests.
-
-## FR-044
-
-The Runtime shall validate outgoing responses.
-
-## FR-045
-
-Validation shall be schema-based.
-
-## FR-046
-
-Zod shall be used for Runtime validation.
-
-## FR-047
-
-Capability Packages shall perform domain validation.
-
----
-
-# OpenAPI Requirements
-
-## FR-048
-
-The Runtime shall aggregate OpenAPI metadata from enabled plugins.
-
-## FR-049
-
-Disabled plugins shall not appear in OpenAPI documentation.
-
-## FR-050
-
-OpenAPI documentation shall reflect Feature Flag changes.
-
----
-
-# Security Requirements
-
-## FR-051
-
-The platform shall support JWT authentication.
-
-## FR-052
-
-The platform shall support RBAC authorization.
-
-## FR-053
-
-Security shall be enforced centrally.
-
----
-
-# Deployment Requirements
-
-## FR-054
-
-The platform shall be deployable to Kubernetes.
-
-## FR-055
-
-The platform shall support multiple Runtime replicas.
-
-## FR-056
-
-The platform shall support rolling deployments.
-
-## FR-057
-
-The Runtime shall remain stateless.
-
-## FR-058
-
-State shall be externalized.
-
----
-
-# Environment Requirements
-
-## FR-059
-
-The platform shall support:
-
-- DEV
-- QA
-- STAGING
-- PREPROD
-- PROD
-
-## FR-060
-
-Environment configuration shall be externalized.
-
-## FR-061
-
-Azure App Configuration values may vary by environment.
-
----
-
-# Observability Requirements
-
-## FR-062
-
-The platform shall provide distributed tracing.
-
-## FR-063
-
-The platform shall trace requests across Runtime, Plugins and Capability Packages.
-
-## FR-064
-
-Telemetry shall be collected centrally.
-
-## FR-065
-
-Telemetry shall include:
-
-- plugin.name
-- plugin.version
-- capability.name
-
----
-
-# Reliability Requirements
-
-## FR-066
-
-Plugin failures shall not terminate the Runtime.
-
-## FR-067
-
-Capability Package failures shall be isolated from unrelated plugins.
-
-## FR-068
-
-Plugin failures shall not prevent unrelated plugins from loading or executing.
-
-## FR-069
-
-The Runtime shall expose health endpoints.
-
-## FR-070
-
-Health monitoring shall include:
+Included:
 
 - Runtime
-- Azure App Configuration Connectivity
-- Plugin Catalog Access
-- Loaded Plugins
+- Capability SDK Packages
+- Capability Implementations
+- Feature API Plugin Packages
+- Plugin Catalog
+- Platform Configuration
+- OpenAPI Aggregation
+
+Reference capabilities:
+
+- Weather
+- Time
+- Customer
+- Random Quote
 
 ---
 
-# Version Visibility Requirements
+# 2\. Runtime Management
 
-## FR-071
+## FR\-001 Plugin Loading
 
-The Runtime shall expose Runtime Version information.
+The Runtime shall load Feature API Plugins registered within the Plugin Catalog.
 
-## FR-072
+## FR\-002 Manifest Validation
 
-The Runtime shall expose Runtime Build SHA information.
+The Runtime shall validate plugin manifests before activation.
 
-## FR-073
+## FR\-003 Invalid Plugin Handling
 
-The Runtime shall expose Plugin SDK Version information.
+The Runtime shall reject plugins with invalid manifests.
 
-## FR-074
+## FR\-004 Capability Resolution
 
-The Runtime shall expose Loaded Plugin Version information.
+The Runtime shall resolve Capability Contracts declared by Feature API Plugins.
 
-## FR-075
+## FR\-005 Capability Injection
 
-The Runtime shall expose Capability Package Version information.
+The Runtime shall inject compatible Capability Implementations into Feature API Plugins.
 
----
+## FR\-006 Direct Instantiation Prevention
 
-# Lifecycle Requirements
+Feature API Plugins shall not directly instantiate Capability Implementations.
 
-## FR-076
+## FR\-007 Plugin Activation
 
-Capability Packages shall be publishable independently.
+The Runtime shall activate only compatible Feature API Plugins.
 
-## FR-077
+## FR\-008 Activation Governance
 
-Publishing Capability Packages shall not require Runtime deployment.
-
-## FR-078
-
-Plugin publication and plugin activation shall be separate processes.
-
-## FR-079
-
-Plugin activation shall be controlled by Azure App Configuration.
-
-## FR-080
-
-Only Plugin Catalog registered plugins shall be eligible for activation.
+Plugin activation shall be controlled by Platform Configuration.
 
 ---
 
-# Future Evolution Requirements
+# 3\. Capability Platform
 
-## FR-081
+## FR\-009 Capability SDK Distribution
 
-The architecture shall support future per-tenant feature enablement.
+The platform shall support Capability SDK Packages as build\-time artifacts.
 
-## FR-082
+## FR\-010 Capability Contracts
 
-The architecture shall support a governed plugin marketplace.
+Capability SDK Packages shall expose Capability Contracts.
 
-## FR-083
+## FR\-011 Type Sharing
 
-The architecture shall support future dependency scanning.
+Capability SDK Packages shall expose development interfaces and type definitions.
 
-## FR-084
+## FR\-012 Runtime Hosted Capabilities
 
-The architecture shall support future usage analytics.
+Capability Implementations shall be hosted by the Runtime.
 
-## FR-085
+## FR\-013 Business Logic Ownership
 
-The architecture shall support future multi-region deployment.
+Capability Implementations shall own Business Logic.
+
+## FR\-014 Domain Validation Ownership
+
+Capability Implementations shall own Domain Validation.
+
+## FR\-015 External Integration Ownership
+
+Capability Implementations shall own External Integrations.
+
+## FR\-016 No HTTP Exposure
+
+Capability Implementations shall not expose HTTP endpoints.
+
+---
+
+# 4\. Feature API Plugin Platform
+
+## FR\-017 Route Definitions
+
+Feature API Plugins shall support route definitions.
+
+## FR\-018 Request Mapping
+
+Feature API Plugins shall support request mapping.
+
+## FR\-019 Response Mapping
+
+Feature API Plugins shall support response mapping.
+
+## FR\-020 OpenAPI Contribution
+
+Feature API Plugins shall contribute OpenAPI metadata.
+
+## FR\-021 Capability Consumption
+
+Feature API Plugins shall consume capabilities through Capability Contracts.
+
+## FR\-022 No Business Logic
+
+Feature API Plugins shall not contain Business Logic.
+
+## FR\-023 No Domain Validation
+
+Feature API Plugins shall not contain Domain Validation.
+
+## FR\-024 No Direct Integrations
+
+Feature API Plugins shall not directly perform Enterprise Integrations.
+
+---
+
+# 5\. Plugin Registration
+
+## FR\-025 Registration Support
+
+The platform shall support plugin registration.
+
+## FR\-026 Required Registration Information
+
+Plugin registration shall include:
+
+- Plugin Identifier
+- Plugin Package
+- Plugin Version
+- Feature Flag
+- Capability Dependencies
+
+## FR\-027 Catalog Management
+
+The platform shall maintain a Plugin Catalog.
+
+## FR\-028 Registration Independence
+
+Plugin registration shall not imply plugin activation.
+
+---
+
+# 6\. Capability Compatibility
+
+## FR\-029 Contract Compatibility
+
+Capability compatibility shall be contract\-based.
+
+## FR\-030 Major Version Compatibility
+
+Contract compatibility shall be determined by major version matching.
+
+## FR\-031 Incompatible Plugin Rejection
+
+The Runtime shall reject plugins with incompatible contracts.
+
+## FR\-032 Compatible Plugin Activation
+
+Only compatible plugins shall be activated.
+
+---
+
+# 7\. Feature Exposure
+
+## FR\-033 Configuration Driven Exposure
+
+Feature exposure shall be governed by Platform Configuration.
+
+## FR\-034 Feature Enablement
+
+The platform shall support enabling Feature API Plugins.
+
+## FR\-035 Feature Disablement
+
+The platform shall support disabling Feature API Plugins.
+
+## FR\-036 Exposure Preconditions
+
+A Feature API Plugin shall only be exposed when:
+
+- Registered
+- Contract Compatible
+- Feature Enabled
+
+---
+
+# 8\. OpenAPI Aggregation
+
+## FR\-037 Metadata Contribution
+
+Feature API Plugins shall contribute OpenAPI metadata.
+
+## FR\-038 Aggregation
+
+The Runtime shall aggregate OpenAPI metadata from active plugins.
+
+## FR\-039 Generated Specification
+
+The Runtime shall generate a consolidated OpenAPI specification.
+
+## FR\-040 Active Plugin Filtering
+
+Only active Feature API Plugins shall be represented in generated OpenAPI output.
+
+---
+
+# 9\. Package Distribution
+
+## FR\-041 Capability Package Publishing
+
+Capability SDK Packages shall be published through the approved package repository.
+
+## FR\-042 Plugin Package Publishing
+
+Feature API Plugin Packages shall be published through the approved package repository.
+
+## FR\-043 Independent Versioning
+
+Feature API Plugin Packages shall support independent versioning.
+
+---
+
+# 10\. Deployment Assembly
+
+## FR\-044 Runtime Deployment
+
+A deployment shall include a Runtime Image.
+
+## FR\-045 Plugin Inclusion
+
+A deployment may include zero or more Feature API Plugin Packages.
+
+## FR\-046 Approved Package Selection
+
+Deployment assembly shall support selection of approved Feature API Plugin Packages.
+
+---
+
+# 11\. Non\-Functional Requirements
+
+## NFR\-001
+
+Runtime shall remain stateless.
+
+## NFR\-002
+
+Capability Implementations shall remain Runtime\-hosted.
+
+## NFR\-003
+
+Capability SDK Packages shall remain build\-time artifacts.
+
+## NFR\-004
+
+Feature API Plugin Packages shall remain deployable API artifacts.
+
+## NFR\-005
+
+The architecture shall support independent development of capabilities and plugins.
+
+---
+
+# 12\. Acceptance Criteria
+
+The PoC shall be considered successful when:
+
+1. Capability SDK Packages can be consumed by Feature API Plugins.
+2. Capability Contracts can be resolved at runtime.
+3. Capability Implementations can be injected into Feature API Plugins.
+4. Feature API Plugins can be registered independently.
+5. Feature API Plugins can be activated through configuration.
+6. Compatibility validation prevents incompatible plugin activation.
+7. OpenAPI output is generated from active plugins only.
+8. Weather, Time, Customer, and Random Quote reference capabilities are operational.
