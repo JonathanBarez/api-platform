@@ -2,170 +2,303 @@
 
 ## API Platform Modernization Initiative
 
-Version: 3.1
+### Version
+3.2
 
-Status: Proposed
-
----
-
-# 1. Purpose
-
-Provide a lightweight, extensible, cloud-native API platform that enables teams to independently expose APIs while maintaining centralized governance, security, observability, runtime hosting, deployment, and operational controls.
-
-API exposure shall be dynamically controlled through Azure App Configuration Feature Flags without runtime restart or redeployment.
+### Status
+PoC / MVP
 
 ---
 
-# 2. Architectural Goals
+# Table of Contents
 
-- Enable rapid API development
-- Promote reusable business capabilities
-- Reduce platform complexity
-- Centralize runtime governance
-- Support cloud-native deployment
-- Support dynamic feature enablement
-- Enable independent release cycles
-- Maintain operational consistency
-- Minimize coupling between teams
+1. Purpose and Scope
+2. Architecture Goals
+3. Solution Overview
+4. Architecture Diagram
+5. Artifact Model
+6. Capability Model
+7. Feature API Plugin Model
+8. Runtime Model
+9. Capability Compatibility Model
+10. Runtime Activation Flow
+11. Reference Capabilities
+12. Repository Structure
+13. Ownership Model
+14. Success Criteria
+15. Constraints
+16. Future Considerations
+17. Terminology Glossary
+18. Architecture Decisions
 
 ---
 
-# 3. Architecture Overview
+# 1. Purpose and Scope
 
-The platform consists of:
+## 1.1 Purpose
 
-- Capability Runtime
-- Plugin SDK
+The purpose of this Proof of Concept (PoC) is to validate a lightweight capability platform architecture.
+
+The platform shall demonstrate:
+
+- Reusable capabilities
+- Independently developed API plugins
+- Runtime-hosted capability implementations
+- Dynamic feature enablement
+- Automatic OpenAPI generation
+
+The objective is to validate architectural feasibility rather than deliver a production-ready platform.
+
+---
+
+## 1.2 Scope
+
+The PoC includes:
+
+- Capability SDK Packages
+- Feature API Plugin Packages
+- Runtime Image
 - Plugin Catalog
-- Azure App Configuration
-- Feature API Plugins
-- Capability Packages
-- OpenAPI Aggregator
-- Kubernetes Platform
+- Platform Configuration
+- OpenAPI Generation
 
-Feature API Plugins expose HTTP endpoints.
-
-Capability Packages provide reusable business and integration functionality.
-
-Azure App Configuration determines which plugins are available.
-
-The Runtime hosts enabled Feature API Plugins through a unified API surface.
+The PoC focuses exclusively on validating capability reuse and plugin activation.
 
 ---
 
-# 4. Logical Architecture
+## 1.3 Out of Scope
 
-External Consumers
+The following concerns are intentionally excluded:
 
-↓
-
-Capability Runtime
-
-↓
-
-Plugin Registry
-
-↓
-
-Feature API Plugins
-
-↓
-
-Capability Packages
-
-↓
-
-Enterprise Systems
-
-Azure App Configuration controls plugin activation.
+- Multi-tenant support
+- Marketplace features
+- Advanced deployment automation
+- Distributed runtime clusters
+- Advanced recovery strategies
+- Enterprise governance workflows
+- Advanced security frameworks
+- Complex observability solutions
 
 ---
 
-# 5. Component Architecture
+# 2. Architecture Goals
 
-## 5.1 Capability Runtime
+## 2.1 Validate Capability Reuse
 
-Responsibilities:
-
-- Plugin Discovery
-- Plugin Package Resolution
-- Plugin Loading
-- Plugin Registration
-- Route Hosting
-- Authentication
-- Authorization
-- Request Validation
-- OpenAPI Aggregation
-- Health Monitoring
-- Telemetry
-- Feature Flag Evaluation
-
-Produces:
-
-- Runtime Container Image
-
-The Runtime shall remain stateless.
+Demonstrate that reusable capabilities can be consumed by multiple APIs.
 
 ---
 
-## 5.2 Plugin SDK
+## 2.2 Validate Plugin-Based APIs
 
-Purpose:
+Demonstrate that APIs can be delivered independently as plugins.
 
-Provide contracts used by Feature API Plugins.
+---
 
-Responsibilities:
+## 2.3 Validate Runtime Governance
 
-- PluginManifest
-- PluginDefinition
-- PluginRoute
-- PluginContext
-- Shared Contracts
+Demonstrate Runtime-controlled capability selection and plugin activation.
 
-Produces:
+---
+
+## 2.4 Validate Feature-Based Exposure
+
+Demonstrate dynamic API exposure through Platform Configuration.
+
+---
+
+## 2.5 Validate OpenAPI Aggregation
+
+Demonstrate automatic API documentation generation from active plugins.
+
+---
+
+# 3. Solution Overview
+
+The platform consists of three managed artifact types:
+
+1. Capability SDK Packages
+2. Feature API Plugin Packages
+3. Runtime Image
+
+The Runtime hosts Capability Implementations and Feature API Plugins.
+
+Feature API Plugins expose APIs to consumers.
+
+Capability Implementations provide reusable business functionality.
+
+---
+
+# 4. Architecture Diagram
 
 ```text
-@company/plugin-sdk
+Consumers
+    │
+    ▼
+
+Runtime
+    │
+    ▼
+
+Feature API Plugins
+    │
+    ▼
+
+Capability Implementations
+    │
+    ▼
+
+Data Sources
 ```
 
-The Plugin SDK shall be independently versioned.
+Supporting services:
+
+```text
+Plugin Catalog
+Platform Configuration
+OpenAPI Aggregation
+```
+
+The Runtime remains the central execution and governance component.
 
 ---
 
-## 5.3 Plugin Catalog
+# 5. Artifact Model
 
-The Plugin Catalog identifies which plugins are eligible for activation.
+## 5.1 Capability SDK Package
+
+Build-time artifact.
+
+Examples:
+
+```text
+@company/capability-weather
+@company/capability-time
+@company/capability-customer
+@company/capability-random-quote
+```
+
+Provides:
+
+- Capability Contracts
+- Type Definitions
+- Development Interfaces
+
+---
+
+## 5.2 Feature API Plugin Package
+
+Deployable plugin artifact.
+
+Examples:
+
+```text
+@company/weather-api-plugin
+@company/time-api-plugin
+@company/customer-api-plugin
+@company/random-quote-api-plugin
+```
+
+Provides:
+
+- Routes
+- API Models
+- OpenAPI Metadata
+
+---
+
+## 5.3 Runtime Image
+
+Deployable execution host.
 
 Example:
 
-```json
-{
-  "id": "weather-api",
-  "package": "@company/weather-api-plugin",
-  "version": "1.2.0",
-  "featureFlag": "WeatherApi"
+```text
+runtime:1.0.0
+```
+
+Provides:
+
+- Plugin Hosting
+- Capability Hosting
+- Runtime Governance
+- OpenAPI Aggregation
+
+---
+
+# 6. Capability Model
+
+The capability model consists of three components:
+
+```text
+Capability SDK Package
+        ↓
+Capability Contract
+        ↓
+Capability Implementation
+```
+
+---
+
+## 6.1 Capability SDK Package
+
+Provides:
+
+- Contracts
+- Types
+- Tooling
+
+Used during:
+
+- Development
+- Build
+- Testing
+
+---
+
+## 6.2 Capability Contract
+
+Defines the public capability interface.
+
+Example:
+
+```ts
+export interface WeatherCapabilityContract {
+  getForecast(city: string):
+    Promise<WeatherForecast>;
 }
 ```
 
-Only registered plugins shall be eligible for activation.
+---
+
+## 6.3 Capability Implementation
+
+Provides executable functionality at runtime.
+
+Example:
+
+```ts
+export class WeatherCapability
+  implements WeatherCapabilityContract {
+
+  async getForecast(
+    city: string
+  ): Promise<WeatherForecast> {
+
+    return {
+      city,
+      temperature: 22,
+      conditions: "Sunny"
+    };
+  }
+}
+```
 
 ---
 
-## 5.4 Azure App Configuration
+# 7. Feature API Plugin Model
 
-Acts as the platform control plane.
-
-Responsibilities:
-
-- Feature Flag Evaluation
-- Plugin Activation Control
-- Dynamic Configuration Refresh
-
-Missing Feature Flags shall be treated as disabled.
-
----
-
-## 5.5 Feature API Plugins
+Feature API Plugins provide API-specific functionality.
 
 Responsibilities:
 
@@ -173,169 +306,55 @@ Responsibilities:
 - Request Mapping
 - Response Mapping
 - OpenAPI Metadata
-- Capability Orchestration
 
-Feature API Plugins shall not:
+Responsibilities excluded:
 
-- Implement business rules
-- Implement domain validation
-- Access databases directly
-- Access enterprise systems directly
-- Implement authentication
-- Implement authorization
-
----
-
-## 5.6 Capability Packages
-
-Examples:
-
-```text
-@company/capability-customer
-@company/capability-billing
-@company/capability-weather
-```
-
-Responsibilities:
-
-- Business Rules
+- Business Logic
 - Domain Validation
-- Backend Integrations
-- Error Translation
-- Typed Contracts
-
-Capability Packages shall not expose HTTP endpoints.
-
----
-
-# 6. Repository Architecture
-
-## Platform Repository
-
-Repository:
-
-```text
-api-platform-runtime
-```
-
-Structure:
-
-```text
-apps/runtime
-
-packages/plugin-sdk
-packages/shared-models
-packages/validation
-packages/telemetry
-
-capabilities/*
-
-catalog/
-deployment/
-environments/
-```
-
-Produces:
-
-- Runtime Container
-- Plugin SDK
-- Capability Packages
-
-Changesets shall manage publishing.
-
----
-
-## Feature Plugin Repositories
-
-Examples:
-
-```text
-customer-api-plugin
-billing-api-plugin
-weather-api-plugin
-```
-
-Produces:
-
-- Independently versioned plugin packages
-
----
-
-# 7. Versioning Strategy
-
-The platform maintains independent version streams for:
-
-- Runtime
-- Plugin SDK
-- Capability Packages
-- Feature API Plugins
-
-Semantic Versioning shall be used.
-
-Changesets shall be used to:
-
-- Calculate version increments
-- Generate changelogs
-- Publish modified packages
+- Enterprise Integrations
 
 Example:
 
-```text
-Runtime                1.2.0
-Plugin SDK             1.1.0
-Capability Customer    2.4.1
-Customer API Plugin    1.7.0
-```
+```ts
+export class WeatherApiPlugin {
 
----
+  constructor(
+    private readonly weather:
+      WeatherCapabilityContract
+  ) {}
 
-# 8. Dependency Model
+  async forecast(
+    city: string
+  ) {
 
-Feature API Plugins shall consume:
-
-```text
-@company/plugin-sdk
-```
-
-and Capability Packages through npm dependencies.
-
-Example:
-
-```json
-{
-  "dependencies": {
-    "@company/capability-customer": "^2.4.0"
+    return this.weather
+      .getForecast(city);
   }
 }
 ```
 
-Publishing a Capability Package does not automatically update consuming plugins.
-
-A Feature API Plugin must explicitly consume the desired Capability Package version.
-
-A Runtime instance shall host only one active major version of a Capability Package.
-
-Multiple major versions of the same Capability Package shall not execute within the same Runtime process.
-
 ---
 
-# 9. Plugin Manifest
-
-Every plugin shall provide a manifest.
+## 7.1 Plugin Manifest
 
 Example:
 
-```typescript
+```ts
 export const manifest = {
-  id: "customer-api",
-  name: "Customer API",
-  version: "1.7.0",
-  featureFlag: "CustomerApi",
+
+  id: "weather-api",
+
+  version: "1.0.0",
+
+  featureFlag: "WeatherApi",
 
   capabilities: [
     {
-      name: "@company/capability-customer",
-      version: "^2.4.0"
+      name:
+        "@company/capability-weather",
+
+      contract:
+        "1.x"
     }
   ]
 };
@@ -343,179 +362,302 @@ export const manifest = {
 
 ---
 
-# 10. Runtime Lifecycle
+# 8. Runtime Model
 
-Startup:
+The Runtime hosts:
 
-1. Load Plugin Catalog
-2. Resolve Plugin Packages
-3. Initialize Azure App Configuration
-4. Evaluate Feature Flags
-5. Load Enabled Plugins
-6. Register Routes
-7. Generate OpenAPI
-8. Start Runtime
-
-Refresh:
-
-1. Refresh Azure App Configuration
-2. Evaluate Feature Flags
-3. Update Plugin Availability
-4. Regenerate OpenAPI
-
-No Runtime restart shall be required.
-
----
-
-# 11. Validation Architecture
-
-## Layer 1 Validation
-
-Location:
-
-```text
-packages/validation
-```
-
-Technology:
-
-```text
-Zod
-```
-
-Responsibilities:
-
-- Request Validation
-- Response Validation
-- Configuration Validation
-- Plugin Manifest Validation
-
----
-
-## Layer 2 Validation
-
-Location:
-
-```text
-Capability Packages
-```
-
-Responsibilities:
-
-- Domain Validation
-- Business Validation
-- Semantic Validation
-
-Feature API Plugins shall not implement Layer 2 validation.
-
----
-
-# 12. OpenAPI Architecture
-
-The Runtime shall aggregate OpenAPI metadata from enabled plugins.
-
-Only enabled plugins shall appear in:
-
-```text
-/swagger
-/openapi.json
-```
-
----
-
-# 13. Security Architecture
-
-Authentication:
-
-```text
-JWT
-```
-
-Authorization:
-
-```text
-RBAC
-```
-
-Security enforcement shall occur centrally within the Runtime.
-
----
-
-# 14. Observability
-
-OpenTelemetry shall provide tracing across:
-
-- Runtime
 - Feature API Plugins
-- Capability Packages
+- Capability Implementations
 
-Required attributes:
+The Runtime owns:
 
-- plugin.name
-- plugin.version
-- capability.name
+- Capability Selection
+- Plugin Loading
+- Plugin Activation
+- Feature Exposure
+- OpenAPI Aggregation
 
----
+The Runtime does not own:
 
-# 15. Health Monitoring
-
-Health monitoring shall include:
-
-- Runtime
-- Azure App Configuration Connectivity
-- Plugin Catalog Access
-- Loaded Plugins
+- Business Logic
+- Enterprise Integration
+- API Ownership
 
 ---
 
-# 16. Version Visibility
+# 9. Capability Compatibility Model
 
-The Runtime shall expose:
+Capability compatibility is contract-based.
 
-- Runtime Version
-- Runtime Build SHA
-- Plugin SDK Version
-- Loaded Plugin Versions
-- Capability Package Versions
+Contract version is derived from the capability major version.
+
+Examples:
+
+| Package Version | Contract |
+|----------------|----------|
+| 1.0.0 | 1.x |
+| 1.5.0 | 1.x |
+| 2.0.0 | 2.x |
 
 ---
 
-# 17. Deployment Architecture
+## Compatibility States
 
-Platform:
+### Compatible
 
 ```text
-Kubernetes
+Plugin Contract = Runtime Contract
 ```
 
-Supported Environments:
+Result:
 
-- DEV
-- QA
-- STAGING
-- PREPROD
-- PROD
-
-The Runtime shall remain stateless.
+```text
+Plugin Activated
+```
 
 ---
 
-# 18. Reliability
+### Legacy Compatible
 
-Plugin failures shall be isolated.
+```text
+Plugin Contract
+```
 
-Failure of one plugin shall not:
+matches a supported legacy contract.
 
-- Stop the Runtime
-- Affect unrelated plugins
-- Prevent unrelated plugins from loading
+Result:
+
+```text
+Plugin Activated
+Warning Emitted
+```
 
 ---
 
-# 19. Future Considerations
+### Incompatible
 
-- Per-Tenant Feature Flags
-- Governed Plugin Marketplace
-- Usage Analytics
-- Dependency Scanning
-- Multi-Region Deployment
+Contract mismatch.
+
+Result:
+
+```text
+Plugin Rejected
+Runtime Continues
+```
+
+---
+
+# 10. Runtime Activation Flow
+
+```text
+Load Capabilities
+        ↓
+Load Registered Plugins
+        ↓
+Validate Contracts
+        ↓
+Evaluate Feature Flags
+        ↓
+Activate Plugins
+        ↓
+Generate OpenAPI
+        ↓
+Expose APIs
+```
+
+---
+
+# 11. Reference Capabilities
+
+## Weather
+
+```ts
+getForecast(city)
+```
+
+Returns weather information.
+
+---
+
+## Time
+
+```ts
+getCurrentTime(timezone)
+```
+
+Returns current time information.
+
+---
+
+## Customer
+
+```ts
+getCustomer(customerId)
+```
+
+Returns customer information.
+
+---
+
+## Random Quote
+
+```ts
+getQuote()
+```
+
+Returns a random quote.
+
+---
+
+# 12. Repository Structure
+
+## Platform Repository
+
+```text
+api-platform-runtime
+│
+├── apps/
+│   └── runtime/
+│
+├── capabilities/
+│   ├── weather/
+│   ├── time/
+│   ├── customer/
+│   └── random-quote/
+│
+└── .changeset/
+```
+
+Produces:
+
+- Runtime Image
+- Capability SDK Packages
+
+---
+
+## Feature Repositories
+
+```text
+weather-api-plugin
+time-api-plugin
+customer-api-plugin
+random-quote-api-plugin
+```
+
+Each repository produces:
+
+```text
+One Feature API Plugin Package
+```
+
+---
+
+# 13. Ownership Model
+
+| Artifact | Owner |
+|-----------|---------|
+| Runtime Image | Platform Team |
+| Capability SDK Package | Platform Team |
+| Capability Contract | Platform Team |
+| Capability Implementation | Platform Team |
+| Plugin Catalog | Platform Team |
+| Platform Configuration | Platform Team |
+| Feature API Plugin Package | Feature Team |
+
+---
+
+# 14. Success Criteria
+
+The PoC shall be considered successful when:
+
+- Capability SDK Packages can be published independently.
+- Feature API Plugins can consume capability contracts.
+- Runtime can load active plugins.
+- Platform Configuration can enable or disable APIs.
+- OpenAPI is generated from active plugins.
+- Capability implementations are reusable across APIs.
+
+---
+
+# 15. Constraints
+
+- Capability SDK Packages shall not expose HTTP endpoints.
+- Capability Implementations shall remain Runtime-hosted.
+- Feature API Plugins shall not contain business logic.
+- Feature API Plugins shall not directly access enterprise systems.
+- Runtime shall remain stateless.
+- Runtime shall own Capability Implementation selection.
+
+---
+
+# 16. Future Considerations
+
+The following items are intentionally deferred:
+
+- Multi-tenant support
+- Marketplace capabilities
+- Advanced compatibility windows
+- Distributed Runtime governance
+- Advanced observability
+- Advanced deployment automation
+
+These concerns shall only be reconsidered after successful validation of the PoC.
+
+---
+
+# 17. Terminology Glossary
+
+| Term | Meaning |
+|---------|---------|
+| Capability SDK Package | Build-time artifact |
+| Capability Contract | Public capability interface |
+| Capability Implementation | Runtime-hosted executable implementation |
+| Feature API Plugin Package | Deployable plugin artifact |
+| Feature API Plugin | Runtime-loaded plugin |
+| Runtime Image | Deployable Runtime host |
+| Plugin Catalog | Plugin metadata store |
+| Platform Configuration | Feature exposure configuration |
+
+---
+
+# 18. Architecture Decisions
+
+## ADR-001
+
+Use Capability SDK Packages for reusable capability contracts.
+
+---
+
+## ADR-002
+
+Runtime owns Capability Implementations.
+
+---
+
+## ADR-003
+
+Feature API Plugins remain thin orchestration layers.
+
+---
+
+## ADR-004
+
+Capability compatibility is contract-based.
+
+---
+
+## ADR-005
+
+Platform Configuration controls feature exposure.
+
+---
+
+## ADR-006
+
+OpenAPI is generated from active plugins only.
+
+---
+
+## ADR-007
+
+The PoC architecture prioritizes simplicity over enterprise completeness.
