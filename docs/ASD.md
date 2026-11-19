@@ -3,51 +3,30 @@
 ## API Platform Modernization Initiative
 
 ### Version
+
 3.2
 
 ### Status
+
 PoC / MVP
 
 ---
 
-# Table of Contents
+# 1. Purpose
 
-1. Purpose and Scope
-2. Architecture Goals
-3. Solution Overview
-4. Architecture Diagram
-5. Artifact Model
-6. Capability Model
-7. Feature API Plugin Model
-8. Runtime Model
-9. Capability Compatibility Model
-10. Runtime Activation Flow
-11. Reference Capabilities
-12. Repository Structure
-13. Ownership Model
-14. Success Criteria
-15. Constraints
-16. Future Considerations
-17. Terminology Glossary
-18. Architecture Decisions
+## 1.1 Objective
 
----
+The objective of this Proof of Concept (PoC) is to validate a lightweight capability platform architecture.
 
-# 1. Purpose and Scope
+The platform shall demonstrate that:
 
-## 1.1 Purpose
+- Reusable capabilities can be developed independently.
+- Feature APIs can be developed independently.
+- A Runtime can host and activate Feature API Plugins.
+- Platform Configuration can control API exposure.
+- OpenAPI documentation can be generated from active plugins.
 
-The purpose of this Proof of Concept (PoC) is to validate a lightweight capability platform architecture.
-
-The platform shall demonstrate:
-
-- Reusable capabilities
-- Independently developed API plugins
-- Runtime-hosted capability implementations
-- Dynamic feature enablement
-- Automatic OpenAPI generation
-
-The objective is to validate architectural feasibility rather than deliver a production-ready platform.
+The objective is to validate architectural feasibility and implementation patterns, not to deliver a production-ready platform.
 
 ---
 
@@ -60,60 +39,18 @@ The PoC includes:
 - Runtime Image
 - Plugin Catalog
 - Platform Configuration
-- OpenAPI Generation
+- OpenAPI Aggregation
 
-The PoC focuses exclusively on validating capability reuse and plugin activation.
+Reference capabilities:
 
----
-
-## 1.3 Out of Scope
-
-The following concerns are intentionally excluded:
-
-- Multi-tenant support
-- Marketplace features
-- Advanced deployment automation
-- Distributed runtime clusters
-- Advanced recovery strategies
-- Enterprise governance workflows
-- Advanced security frameworks
-- Complex observability solutions
+- Weather
+- Time
+- Customer
+- Random Quote
 
 ---
 
-# 2. Architecture Goals
-
-## 2.1 Validate Capability Reuse
-
-Demonstrate that reusable capabilities can be consumed by multiple APIs.
-
----
-
-## 2.2 Validate Plugin-Based APIs
-
-Demonstrate that APIs can be delivered independently as plugins.
-
----
-
-## 2.3 Validate Runtime Governance
-
-Demonstrate Runtime-controlled capability selection and plugin activation.
-
----
-
-## 2.4 Validate Feature-Based Exposure
-
-Demonstrate dynamic API exposure through Platform Configuration.
-
----
-
-## 2.5 Validate OpenAPI Aggregation
-
-Demonstrate automatic API documentation generation from active plugins.
-
----
-
-# 3. Solution Overview
+# 2. Architecture Overview
 
 The platform consists of three managed artifact types:
 
@@ -121,15 +58,25 @@ The platform consists of three managed artifact types:
 2. Feature API Plugin Packages
 3. Runtime Image
 
-The Runtime hosts Capability Implementations and Feature API Plugins.
+The Runtime hosts:
 
-Feature API Plugins expose APIs to consumers.
+- Runtime-loaded Feature API Plugins
+- Runtime-hosted Capability Implementations
+
+Feature API Plugins expose API functionality.
 
 Capability Implementations provide reusable business functionality.
 
+The Runtime governs:
+
+- Plugin Loading
+- Capability Resolution
+- Feature Exposure
+- OpenAPI Aggregation
+
 ---
 
-# 4. Architecture Diagram
+# 3. Reference Architecture Diagram
 
 ```text
 Consumers
@@ -151,23 +98,21 @@ Capability Implementations
 Data Sources
 ```
 
-Supporting services:
+Supporting components:
 
 ```text
 Plugin Catalog
 Platform Configuration
-OpenAPI Aggregation
+OpenAPI Generator
 ```
-
-The Runtime remains the central execution and governance component.
 
 ---
 
-# 5. Artifact Model
+# 4. Artifact Model
 
-## 5.1 Capability SDK Package
+## 4.1 Capability SDK Package
 
-Build-time artifact.
+A Capability SDK Package is a build-time artifact.
 
 Examples:
 
@@ -184,11 +129,17 @@ Provides:
 - Type Definitions
 - Development Interfaces
 
+Consumed during:
+
+- Development
+- Build
+- Testing
+
 ---
 
-## 5.2 Feature API Plugin Package
+## 4.2 Feature API Plugin Package
 
-Deployable plugin artifact.
+A Feature API Plugin Package is a deployable API artifact.
 
 Examples:
 
@@ -202,14 +153,15 @@ Examples:
 Provides:
 
 - Routes
-- API Models
+- Request Mapping
+- Response Mapping
 - OpenAPI Metadata
 
 ---
 
-## 5.3 Runtime Image
+## 4.3 Runtime Image
 
-Deployable execution host.
+A Runtime Image is the deployable execution environment.
 
 Example:
 
@@ -219,16 +171,59 @@ runtime:1.0.0
 
 Provides:
 
-- Plugin Hosting
 - Capability Hosting
-- Runtime Governance
+- Plugin Hosting
+- Plugin Activation
+- Feature Exposure
 - OpenAPI Aggregation
+
+---
+
+# 5. Repository Structure
+
+## Platform Repository
+
+```text
+api-platform-runtime
+│
+├── apps/
+│   └── runtime/
+│
+├── capabilities/
+│   ├── weather/
+│   ├── time/
+│   ├── customer/
+│   └── random-quote/
+│
+├── catalog/
+│   └── plugins.json
+│
+└── .changeset/
+```
+
+Produces:
+
+- Runtime Image
+- Capability SDK Packages
+
+---
+
+## Feature Repositories
+
+```text
+weather-api-plugin
+time-api-plugin
+customer-api-plugin
+random-quote-api-plugin
+```
+
+Each repository produces a single Feature API Plugin Package.
 
 ---
 
 # 6. Capability Model
 
-The capability model consists of three components:
+The capability model consists of:
 
 ```text
 Capability SDK Package
@@ -240,42 +235,75 @@ Capability Implementation
 
 ---
 
-## 6.1 Capability SDK Package
+## 6.1 Capability Contract Example
 
-Provides:
-
-- Contracts
-- Types
-- Tooling
-
-Used during:
-
-- Development
-- Build
-- Testing
-
----
-
-## 6.2 Capability Contract
-
-Defines the public capability interface.
-
-Example:
+### Weather Capability
 
 ```ts
 export interface WeatherCapabilityContract {
-  getForecast(city: string):
-    Promise<WeatherForecast>;
+
+  getForecast(
+    city: string
+  ): Promise<WeatherForecast>;
+}
+
+export interface WeatherForecast {
+  city: string;
+  temperature: number;
+  conditions: string;
+}
+```
+
+### Time Capability
+
+```ts
+export interface TimeCapabilityContract {
+
+  getCurrentTime(
+    timezone: string
+  ): Promise<CurrentTime>;
+}
+
+export interface CurrentTime {
+  timezone: string;
+  timestamp: string;
+}
+```
+
+### Customer Capability
+
+```ts
+export interface CustomerCapabilityContract {
+
+  getCustomer(
+    customerId: string
+  ): Promise<Customer>;
+}
+
+export interface Customer {
+  customerId: string;
+  displayName: string;
+  status: "ACTIVE" | "INACTIVE";
+}
+```
+
+### Random Quote Capability
+
+```ts
+export interface RandomQuoteCapabilityContract {
+
+  getQuote(): Promise<Quote>;
+}
+
+export interface Quote {
+  quote: string;
+  author?: string;
 }
 ```
 
 ---
 
-## 6.3 Capability Implementation
-
-Provides executable functionality at runtime.
-
-Example:
+## 6.2 Capability Implementation Example
 
 ```ts
 export class WeatherCapability
@@ -294,11 +322,19 @@ export class WeatherCapability
 }
 ```
 
+Capability Implementations own:
+
+- Business Logic
+- Domain Validation
+- External Integrations
+
+Capability Implementations do not expose HTTP endpoints.
+
 ---
 
-# 7. Feature API Plugin Model
+# 7. Plugin Model
 
-Feature API Plugins provide API-specific functionality.
+Feature API Plugins provide API-specific behavior.
 
 Responsibilities:
 
@@ -307,37 +343,15 @@ Responsibilities:
 - Response Mapping
 - OpenAPI Metadata
 
-Responsibilities excluded:
+Excluded Responsibilities:
 
 - Business Logic
 - Domain Validation
 - Enterprise Integrations
 
-Example:
-
-```ts
-export class WeatherApiPlugin {
-
-  constructor(
-    private readonly weather:
-      WeatherCapabilityContract
-  ) {}
-
-  async forecast(
-    city: string
-  ) {
-
-    return this.weather
-      .getForecast(city);
-  }
-}
-```
-
 ---
 
 ## 7.1 Plugin Manifest
-
-Example:
 
 ```ts
 export const manifest = {
@@ -362,6 +376,74 @@ export const manifest = {
 
 ---
 
+## 7.2 Plugin Registration Schema
+
+```ts
+export interface PluginRegistrationRequest {
+
+  pluginId: string;
+
+  pluginPackage: string;
+
+  pluginVersion: string;
+
+  featureFlag: string;
+
+  capabilities: PluginCapabilityReference[];
+}
+```
+
+### Example Registration
+
+```json
+{
+  "pluginId": "weather-api",
+
+  "pluginPackage":
+    "@company/weather-api-plugin",
+
+  "pluginVersion":
+    "1.0.0",
+
+  "featureFlag":
+    "WeatherApi",
+
+  "capabilities": [
+    {
+      "capability":
+        "@company/capability-weather",
+
+      "contract":
+        "1.x"
+    }
+  ]
+}
+```
+
+---
+
+## 7.3 Plugin Example
+
+```ts
+export class WeatherApiPlugin {
+
+  constructor(
+    private readonly weather:
+      WeatherCapabilityContract
+  ) {}
+
+  async forecast(
+    city: string
+  ) {
+
+    return this.weather
+      .getForecast(city);
+  }
+}
+```
+
+---
+
 # 8. Runtime Model
 
 The Runtime hosts:
@@ -371,11 +453,11 @@ The Runtime hosts:
 
 The Runtime owns:
 
+- Capability Resolution
 - Capability Selection
 - Plugin Loading
-- Plugin Activation
 - Feature Exposure
-- OpenAPI Aggregation
+- OpenAPI Generation
 
 The Runtime does not own:
 
@@ -385,242 +467,224 @@ The Runtime does not own:
 
 ---
 
+## Runtime Startup Sequence
+
+```text
+Load Capabilities
+        ↓
+Load Plugin Catalog
+        ↓
+Validate Plugin Manifests
+        ↓
+Resolve Contracts
+        ↓
+Apply Feature Flags
+        ↓
+Activate Plugins
+        ↓
+Generate OpenAPI
+        ↓
+Start Server
+```
+
+---
+
+## Capability Injection Example
+
+```ts
+const weather =
+  capabilityRegistry.resolve(
+    "weather"
+  );
+
+new WeatherApiPlugin(
+  weather
+);
+```
+
+Plugins never instantiate capability implementations directly.
+
+---
+
 # 9. Capability Compatibility Model
 
-Capability compatibility is contract-based.
+Compatibility is contract-based.
 
-Contract version is derived from the capability major version.
+Contract version equals capability major version.
 
 Examples:
 
 | Package Version | Contract |
-|----------------|----------|
+|---------------|----------|
 | 1.0.0 | 1.x |
-| 1.5.0 | 1.x |
+| 1.9.0 | 1.x |
 | 2.0.0 | 2.x |
 
 ---
 
-## Compatibility States
+## 9.1 Compatibility States
 
 ### Compatible
 
 ```text
-Plugin Contract = Runtime Contract
-```
-
-Result:
-
-```text
-Plugin Activated
-```
-
----
-
-### Legacy Compatible
-
-```text
 Plugin Contract
+=
+Runtime Contract
 ```
-
-matches a supported legacy contract.
 
 Result:
 
 ```text
 Plugin Activated
-Warning Emitted
 ```
 
 ---
 
 ### Incompatible
 
-Contract mismatch.
+```text
+Plugin Contract
+≠
+Runtime Contract
+```
 
 Result:
 
 ```text
 Plugin Rejected
-Runtime Continues
 ```
+
+For the PoC, no compatibility windows or adapters are supported.
 
 ---
 
-# 10. Runtime Activation Flow
+# 10. Feature Flag Model
+
+Feature exposure is controlled through Platform Configuration.
+
+Example:
 
 ```text
-Load Capabilities
-        ↓
-Load Registered Plugins
-        ↓
-Validate Contracts
-        ↓
-Evaluate Feature Flags
-        ↓
-Activate Plugins
-        ↓
-Generate OpenAPI
-        ↓
-Expose APIs
+WeatherApi = Enabled
 ```
 
----
-
-# 11. Reference Capabilities
-
-## Weather
-
-```ts
-getForecast(city)
-```
-
-Returns weather information.
-
----
-
-## Time
-
-```ts
-getCurrentTime(timezone)
-```
-
-Returns current time information.
-
----
-
-## Customer
-
-```ts
-getCustomer(customerId)
-```
-
-Returns customer information.
-
----
-
-## Random Quote
-
-```ts
-getQuote()
-```
-
-Returns a random quote.
-
----
-
-# 12. Repository Structure
-
-## Platform Repository
+Result:
 
 ```text
-api-platform-runtime
-│
-├── apps/
-│   └── runtime/
-│
-├── capabilities/
-│   ├── weather/
-│   ├── time/
-│   ├── customer/
-│   └── random-quote/
-│
-└── .changeset/
+Weather API exposed
 ```
 
-Produces:
-
-- Runtime Image
-- Capability SDK Packages
-
----
-
-## Feature Repositories
+Example:
 
 ```text
-weather-api-plugin
-time-api-plugin
-customer-api-plugin
-random-quote-api-plugin
+WeatherApi = Disabled
 ```
 
-Each repository produces:
+Result:
 
 ```text
-One Feature API Plugin Package
+Weather API hidden
+```
+
+Activation requires:
+
+```text
+Plugin Registered
+        +
+Contract Compatible
+        +
+Feature Enabled
 ```
 
 ---
 
-# 13. Ownership Model
+# 11. OpenAPI Model
 
-| Artifact | Owner |
-|-----------|---------|
-| Runtime Image | Platform Team |
-| Capability SDK Package | Platform Team |
-| Capability Contract | Platform Team |
-| Capability Implementation | Platform Team |
-| Plugin Catalog | Platform Team |
-| Platform Configuration | Platform Team |
-| Feature API Plugin Package | Feature Team |
+Each active plugin contributes OpenAPI metadata.
 
----
+Example:
 
-# 14. Success Criteria
+```ts
+{
+  operationId:
+    "getForecast",
 
-The PoC shall be considered successful when:
+  summary:
+    "Retrieve weather forecast",
 
-- Capability SDK Packages can be published independently.
-- Feature API Plugins can consume capability contracts.
-- Runtime can load active plugins.
-- Platform Configuration can enable or disable APIs.
-- OpenAPI is generated from active plugins.
-- Capability implementations are reusable across APIs.
+  tags:
+    ["Weather"]
+}
+```
+
+The Runtime aggregates active plugin metadata into a single OpenAPI specification.
 
 ---
 
-# 15. Constraints
+# 12. Constraints
 
 - Capability SDK Packages shall not expose HTTP endpoints.
 - Capability Implementations shall remain Runtime-hosted.
-- Feature API Plugins shall not contain business logic.
-- Feature API Plugins shall not directly access enterprise systems.
+- Feature API Plugins shall not contain reusable business logic.
+- Feature API Plugins shall not directly access data sources.
 - Runtime shall remain stateless.
 - Runtime shall own Capability Implementation selection.
+- Capability SDK Packages shall be usable as standard development dependencies.
+- Plugin registration shall not imply plugin activation.
 
 ---
 
-# 16. Future Considerations
+# 13. Technology Baseline
 
-The following items are intentionally deferred:
+The reference implementation shall use:
 
-- Multi-tenant support
-- Marketplace capabilities
-- Advanced compatibility windows
+- TypeScript
+- Node.js LTS
+- pnpm
+- Fastify or NestJS
+- OpenAPI 3
+- Zod
+- Platform Configuration Provider
+
+Specific infrastructure choices are intentionally flexible at PoC stage.
+
+---
+
+# 14. Non-Goals
+
+The PoC does not attempt to solve:
+
+- Multi-tenancy
+- Marketplace distribution
+- Enterprise governance workflows
+- Plugin approval processes
+- Advanced compatibility strategies
 - Distributed Runtime governance
-- Advanced observability
-- Advanced deployment automation
+- Complex deployment automation
+- Advanced observability solutions
+- Hot plugin replacement
+- Runtime clustering
 
-These concerns shall only be reconsidered after successful validation of the PoC.
+These concerns are intentionally deferred.
 
 ---
 
-# 17. Terminology Glossary
+# 15. Terminology Glossary
 
 | Term | Meaning |
-|---------|---------|
+|--------|---------|
 | Capability SDK Package | Build-time artifact |
 | Capability Contract | Public capability interface |
 | Capability Implementation | Runtime-hosted executable implementation |
 | Feature API Plugin Package | Deployable plugin artifact |
 | Feature API Plugin | Runtime-loaded plugin |
-| Runtime Image | Deployable Runtime host |
-| Plugin Catalog | Plugin metadata store |
+| Runtime Image | Runtime execution host |
+| Plugin Catalog | Plugin metadata source |
 | Platform Configuration | Feature exposure configuration |
 
 ---
 
-# 18. Architecture Decisions
+# 16. Architecture Decisions
 
 ## ADR-001
 
@@ -654,10 +718,27 @@ Platform Configuration controls feature exposure.
 
 ## ADR-006
 
-OpenAPI is generated from active plugins only.
+Runtime owns plugin activation.
 
 ---
 
 ## ADR-007
 
-The PoC architecture prioritizes simplicity over enterprise completeness.
+OpenAPI is generated from active plugins only.
+
+---
+
+## ADR-008
+
+The architecture prioritizes simplicity over enterprise completeness.
+
+---
+
+## ADR-009
+
+The PoC is validated using four reference capabilities:
+
+- Weather
+- Time
+- Customer
+- Random Quote
